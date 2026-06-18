@@ -1,0 +1,2 @@
+/usr/bin/ar qc libevObj.a CMakeFiles/evObj.dir/src/alloc.c.o CMakeFiles/evObj.dir/src/event.c.o CMakeFiles/evObj.dir/src/reference.c.o
+/usr/bin/ranlib libevObj.a
