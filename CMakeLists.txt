@@ -45,3 +45,14 @@ target_link_libraries(evObj
     PRIVATE
         Threads::Threads
 )
+
+install(TARGETS evObj
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+    DESTINATION include
+    FILES_MATCHING
+        PATTERN "*.h"
+)
