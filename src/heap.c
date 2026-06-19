@@ -114,3 +114,8 @@ void ev_heap_release(void *p)
 {
     evo_release(evobject_header_from_heap_ptr(p));
 }
+
+evobject_t *ev_heap_get_header(void *p)
+{
+    return evobject_header_from_heap_ptr(p);
+}

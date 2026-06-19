@@ -35,4 +35,6 @@ void *ev_heap_calloc(size_t count, size_t len);
 bool ev_heap_retain(void *p);
 void ev_heap_release(void *p);
 
+evobject_t *ev_heap_get_header(void *p);
+
 #endif /* EVOBJ_HEAP_H */
