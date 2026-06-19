@@ -115,7 +115,7 @@ void evobject_release(evobject_strong_t *evo)
     }
     else if(old <= 0)
     {
-        fprintf(stderr, "\033[1m[evObj]\033[0m reference underflow on object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, evo->refcount);
+        fprintf(stderr, "\033[1m[evObj]\033[0m reference underflow on object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, old - 1);
         exit(1);
     }
 

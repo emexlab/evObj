@@ -90,6 +90,10 @@ void *ev_heap_alloc(size_t len)
         free(evo);
         return NULL;
     }
+
+    #ifdef DEBUG
+    fprintf(stderr, "\033[1m[evObj]\033[0m heap allocated object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, evo->refcount);
+    #endif /* DEBUG */
     
     /* returning da object */
     return (void*)((uint8_t*)evo + sizeof(evobject_t));

@@ -83,6 +83,10 @@ evobject_strong_t *evobject_alloc(evobject_main_event_handler_t handler)
         free(evo);
         return NULL;
     }
+
+    #ifdef DEBUG
+    fprintf(stderr, "\033[1m[evObj]\033[0m allocated object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, evo->refcount);
+    #endif /* DEBUG */
     
     /* returning da object */
     return evo;
@@ -149,6 +153,10 @@ evobject_strong_t *evobject_copy(evobject_t *evo)
         free(evo_dup);
         evo_dup = NULL;
     }
+
+    #ifdef DEBUG
+    fprintf(stderr, "\033[1m[evObj]\033[0m copied object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m) to object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, evo->refcount, (void*)evo_dup, evo_dup->refcount);
+    #endif /* DEBUG */
     
 out_unlock:
     evo_unlock(evo);
@@ -216,6 +224,10 @@ out_unlock:
     {
         evo_release(evo);
     }
+
+    #ifdef DEBUG
+    fprintf(stderr, "\033[1m[evObj]\033[0m copied object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m) to object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, evo->refcount, (void*)evo_snap, evo_snap->refcount);
+    #endif /* DEBUG */
     
     return evo_snap;
 }
