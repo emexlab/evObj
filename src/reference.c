@@ -43,7 +43,7 @@ bool evobject_retain(evobject_t *evo)
         if(current <= 0 || (atomic_load(&evo->state) == evObjStateInvalid))
         {
             #ifdef DEBUG
-            fprintf(stderr, "\033[1m[evObj]\033[0m failed to retain event object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, current);
+            fprintf(stderr, "\033[1m[evObj]\033[0m failed to retain object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, current);
             #endif /* DEBUG */
             return false;
         }
@@ -57,13 +57,13 @@ bool evobject_retain(evobject_t *evo)
                 /* rollback using release logic */
                 evo_release(evo);
                 #ifdef DEBUG
-                fprintf(stderr, "\033[1m[evObj]\033[0m failed to retain event object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, current);
+                fprintf(stderr, "\033[1m[evObj]\033[0m failed to retain object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, current);
                 #endif /* DEBUG */
                 return false;
             }
 
             #ifdef DEBUG
-            fprintf(stderr, "\033[1m[evObj]\033[0m retained event object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, current + 1);
+            fprintf(stderr, "\033[1m[evObj]\033[0m retained object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, current + 1);
             #endif /* DEBUG */
             return true;
         }
@@ -94,7 +94,7 @@ void evobject_release(evobject_strong_t *evo)
                 pthread_rwlock_destroy(&(evo->rwlock));
                 pthread_rwlock_destroy(&(evo->event_rwlock));
                 #ifdef DEBUG
-                fprintf(stderr, "\033[1m[evObj]\033[0m deinitilized evobject @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, evo->refcount);
+                fprintf(stderr, "\033[1m[evObj]\033[0m deinitilized object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, evo->refcount);
                 #endif /* DEBUG */
                 break;
             case evObjBaseTypeObjectSnapshot:
@@ -103,11 +103,11 @@ void evobject_release(evobject_strong_t *evo)
                     evo_release(evo->orig);
                 }
                 #ifdef DEBUG
-                fprintf(stderr, "\033[1m[evObj]\033[0m deinitilized evobject @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, evo->refcount);
+                fprintf(stderr, "\033[1m[evObj]\033[0m deinitilized object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, evo->refcount);
                 #endif /* DEBUG */
                 break;
             default:
-                fprintf(stderr, "\033[1m[evObj]\033[0m unknown object \033[1m%d\033[0m type got deinitilized", evo->base_type);
+                fprintf(stderr, "\033[1m[evObj]\033[0m unknown object type \033[1m%d\033[0m on object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", evo->base_type, (void*)evo, evo->refcount);
                 exit(1);
         }
 
@@ -115,11 +115,11 @@ void evobject_release(evobject_strong_t *evo)
     }
     else if(old <= 0)
     {
-        fprintf(stderr, "\033[1m[evObj]\033[0m reference underflow on evobject @ object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, evo->refcount);
+        fprintf(stderr, "\033[1m[evObj]\033[0m reference underflow on object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, evo->refcount);
         exit(1);
     }
 
     #ifdef DEBUG
-    fprintf(stderr, "\033[1m[evObj]\033[0m released event object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, old - 1);
+    fprintf(stderr, "\033[1m[evObj]\033[0m released object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, old - 1);
     #endif /* DEBUG */
 }
