@@ -120,6 +120,6 @@ void evobject_release(evobject_strong_t *evo)
     }
 
     #ifdef DEBUG
-    fprintf(stderr, "\033[1m[evObj]\033[0m released event object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, evo->refcount);
+    fprintf(stderr, "\033[1m[evObj]\033[0m released event object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, old - 1);
     #endif /* DEBUG */
 }
