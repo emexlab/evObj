@@ -23,7 +23,7 @@
  */
 
 #include <evObj/base.h>
-#include <evObj/registration.h>
+#include <evObj/register.h>
 
 EVTypeID EVGetTypeID(EVObjectRef ref)
 {
@@ -49,7 +49,7 @@ Boolean EVEqual(EVObjectRef ref1,
         return false;
     }
 
-    EVClass class = EVClassGetByID(typeID);
+    EVClass *class = EVClassGetByID(typeID);
     if(class->equal != NULL)
     {
         return class->equal(ref1, ref2);
