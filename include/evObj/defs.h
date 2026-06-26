@@ -40,6 +40,9 @@ typedef enum {
     kEVObjectStateInvalid                           /* object is invalidated and cannot be retained, only released, its used to mark a object as meaningless */
 } kEVObjectState;
 
+typedef uint64_t EVTypeID;
+typedef bool Boolean;
+
 /* kernel virt object types */
 typedef struct evobject     EVObject;               /* weak object type (needs retain on use) */
 typedef void * EVObjectRef;  /* so the compiler shuts up */
@@ -73,8 +76,7 @@ typedef struct evobject {
 typedef void (*evobject_init_handler_t)(EVObjectRef ref);
 typedef void (*evobject_deinit_handler_t)(EVObjectRef ref);
 typedef EVObject *(*evobject_copy_handler_t)(EVObjectRef ref);
-
-typedef uint64_t EVTypeID;
+typedef Boolean *(*evobject_equal_handler_t)(EVObjectRef ref1, EVObjectRef ref2);
 
 typedef struct evclass {
     /* properties  */
@@ -86,6 +88,7 @@ typedef struct evclass {
     evobject_init_handler_t init;
     evobject_deinit_handler_t deinit;
     evobject_copy_handler_t copy;
+    evobject_equal_handler_t equal;
 } EVClass;
 
 #endif /* EVOBJECT_DEFS_H */

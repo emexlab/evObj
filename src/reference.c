@@ -93,3 +93,9 @@ void EVInvalidate(EVObjectRef ref)
     assert(object != NULL);
     atomic_store(&(object->state), kEVObjectStateInvalid);
 }
+
+int EVGetRetainCount(EVObjectRef ref)
+{
+    EVObject *object = (EVObject*)ref;
+    return atomic_load(&object->refcount);
+}
