@@ -129,6 +129,27 @@ static void __EVStringDealloc(EVStringRef stringRef)
     }
 }
 
+static bool __EVStringEqual(EVStringRef stringRef1,
+                            EVStringRef stringRef2)
+{
+    EVString string1 = (EVString)stringRef1;
+    EVString string2 = (EVString)stringRef2;
+
+    /* encoding must match */
+    if(string1->encoding != string2->encoding)
+    {
+        return false;
+    }
+
+    /* size must match */
+    if(string1->len != string2->len)
+    {
+        return false;
+    }
+
+    return (strncmp(string1->buf, string2->buf, string1->len) == 0);
+}
+
 static EVClass EVStringClass = {
     .name = "EVString",
     .typeID = kEVNotATypeID,
@@ -136,7 +157,7 @@ static EVClass EVStringClass = {
     .init = NULL,
     .deinit = __EVStringDealloc,
     .copy = NULL,
-    .equal = NULL,
+    .equal = __EVStringEqual,
 };
 
 static void EVStringRegisterClass(void)
