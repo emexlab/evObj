@@ -34,12 +34,6 @@
 #define DEFINE_EVOBJECT_MAIN_EVENT_HANDLER(name) int64_t evobject_event_handler_##name##_main(evobject_t **evarr, evobject_event_type_t type)
 #define GET_EVOBJECT_MAIN_EVENT_HANDLER(name) evobject_event_handler_##name##_main
 
-/* enumeration of kernel virt object states */
-typedef enum {
-    kEVObjectStateNormal = 0,                       /* object is in normal state */
-    kEVObjectStateInvalid                           /* object is invalidated and cannot be retained, only released, its used to mark a object as meaningless */
-} kEVObjectState;
-
 typedef uint64_t EVTypeID;
 
 /* kernel virt object types */
@@ -59,16 +53,6 @@ typedef struct evobject {
      * automatically.
      */
     _Atomic int refcount;
-
-    /*
-     * the object state value marks a
-     * object as effectively useless if its state
-     * is invalid, any new retains will fail cuz it
-     * doesnt matter anymore what a kernel operation
-     * might wanna do with this object as its literally
-     * marked as not useful anymore.
-     */
-    _Atomic kEVObjectState state;
 } EVObject;
 
 typedef void (*evobject_init_handler_t)(EVObjectRef ref);

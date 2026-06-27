@@ -30,8 +30,6 @@
 EVObjectRef EVRetain(EVObjectRef ref);
 void EVRelease(EVObjectRef ref);
 
-void EVInvalidate(EVObjectRef ref);
-
 int EVGetRetainCount(EVObjectRef ref);
 
 #endif /* EVOBJECT_REFERENCE_H */

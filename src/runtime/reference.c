@@ -40,7 +40,7 @@ EVObjectRef EVRetain(EVObjectRef ref)
         int current = atomic_load(&object->refcount);
 
         /* checking if object can be retained */
-        if(current <= 0 || (atomic_load(&object->state) == kEVObjectStateInvalid))
+        if(current <= 0)
         {
             return NULL;
         }
@@ -48,14 +48,6 @@ EVObjectRef EVRetain(EVObjectRef ref)
         /* retaining object */
         if(atomic_compare_exchange_weak(&object->refcount, &current, current + 1))
         {
-            /* performing another check */
-            if(atomic_load(&object->state) == kEVObjectStateInvalid)
-            {
-                /* rollback using release logic */
-                EVRelease(ref);
-                return NULL;
-            }
-
             return ref;
         }
     }
@@ -84,13 +76,6 @@ void EVRelease(EVObjectRef ref)
         fprintf(stderr, "EVRelease: fatal error occured, reference underflow\n");
         exit(1);
     }
-}
-
-void EVInvalidate(EVObjectRef ref)
-{
-    EVObject *object = (EVObject*)ref;
-    assert(object != NULL);
-    atomic_store(&(object->state), kEVObjectStateInvalid);
 }
 
 int EVGetRetainCount(EVObjectRef ref)

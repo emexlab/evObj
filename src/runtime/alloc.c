@@ -42,9 +42,8 @@ EVObjectRef EVAlloc(EVTypeID typeID)
         return NULL;
     }
     object->refcount = 1;
-    object->state = kEVObjectStateNormal;
     object->typeID = class->typeID;
-    
+
     /* initilizing when applicable */
     if(class->init != NULL)
     {
