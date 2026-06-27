@@ -246,3 +246,31 @@ EVStringRef EVStringCreateCopy(EVAllocator *allocator,
     EVString string = (EVString)stringRef;
     return EVStringCreateWithCString(EVGetAllocator(stringRef), string->buf, string->encoding);
 }
+
+const char *EVStringGetCStringPtr(EVStringRef stringRef,
+                                  kEVStringEncoding encoding)
+{
+    if(stringRef == NULL)
+    {
+        return NULL;
+    }
+
+    EVString string = (EVString)stringRef;
+    if(!__EVStringValidateEncoding(encoding, string->buf, string->len))
+    {
+        return NULL;
+    }
+
+    return string->buf;
+}
+
+size_t EVStringGetLength(EVStringRef stringRef)
+{
+    if(stringRef == NULL)
+    {
+        return 0;
+    }
+
+    EVString string = (EVString)stringRef;
+    return string->len;
+}
