@@ -90,7 +90,7 @@ static bool __EVNumberEqual(EVNumberRef ref1,
     }
 }
 
-EVClass EVNumberObjClass = {
+static EVClass EVNumberClass = {
     .name = "EVNumber",
     .typeID = kEVNotATypeID,
     .size = sizeof(struct EVNumber),
@@ -102,14 +102,14 @@ EVClass EVNumberObjClass = {
 
 static void EVNumberRegisterClass(void)
 {
-    EVClassRegister(&EVNumberObjClass);
+    EVClassRegister(&EVNumberClass);
 }
 
 EVTypeID EVNumberGetTypeID(void)
 {
     static pthread_once_t once = PTHREAD_ONCE_INIT;
     pthread_once(&once, EVNumberRegisterClass);
-    return EVNumberObjClass.typeID;
+    return EVNumberClass.typeID;
 }
 
 EVNumberRef EVNumberCreate(EVAllocator *allocator,

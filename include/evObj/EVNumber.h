@@ -25,6 +25,8 @@
 #ifndef EVNUMBER_H
 #define EVNUMBER_H
 
+#include <stdint.h>
+#include <stdbool.h>
 #include <evObj/runtime/EVBase.h>
 
 typedef enum: uint8_t {

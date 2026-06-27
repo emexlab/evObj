@@ -12,6 +12,7 @@ add_library(evObj STATIC
     src/runtime/EVAllocator.c
 
     src/EVNumber.c
+    src/EVString.c
 )
 
 target_include_directories(evObj

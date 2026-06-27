@@ -31,5 +31,6 @@
 
 /* types */
 #include <evObj/EVNumber.h>
+#include <evObj/EVString.h>
 
 #endif /* EVOBJ_H */
