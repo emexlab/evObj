@@ -31,9 +31,6 @@
 #include <stdatomic.h>
 #include <pthread.h>
 
-#define DEFINE_EVOBJECT_MAIN_EVENT_HANDLER(name) int64_t evobject_event_handler_##name##_main(evobject_t **evarr, evobject_event_type_t type)
-#define GET_EVOBJECT_MAIN_EVENT_HANDLER(name) evobject_event_handler_##name##_main
-
 typedef uint64_t EVTypeID;
 typedef void * EVObjectRef;  /* so the compiler shuts up */
 
