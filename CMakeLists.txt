@@ -35,7 +35,7 @@ else()
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         list(APPEND _EV_OPT_FLAGS -O0 -g)
     else()
-        list(APPEND _EV_OPT_FLAGS -O3 -fomit-frame-pointer -fstrict-aliasing -ffast-math -funroll-loops)
+        list(APPEND _EV_OPT_FLAGS -O3 -fomit-frame-pointer -fstrict-aliasing -funroll-loops)
 
         if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
             list(APPEND _EV_OPT_FLAGS -fgraphite-identity -floop-nest-optimize -fipa-pta)

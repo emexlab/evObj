@@ -69,25 +69,8 @@ EVObjectRef EVRetain(EVObjectRef ref)
 {
     EVObject *object = (EVObject*)ref;
     assert(object != NULL);
-
-    /* performing retain if valid */
-    while(1)
-    {
-        /* getting current reference count */
-        int current = atomic_load(&object->refcount);
-
-        /* checking if object can be retained */
-        if(current <= 0)
-        {
-            return NULL;
-        }
-
-        /* retaining object */
-        if(atomic_compare_exchange_weak(&object->refcount, &current, current + 1))
-        {
-            return ref;
-        }
-    }
+    atomic_fetch_add_explicit(&object->refcount, 1, memory_order_relaxed);
+    return ref;
 }
 
 void EVRelease(EVObjectRef ref)
@@ -96,9 +79,10 @@ void EVRelease(EVObjectRef ref)
     assert(object != NULL);
 
     /* releasing and trying to get the old reference count */
-    int old = atomic_fetch_sub(&object->refcount, 1);
+    int old = atomic_fetch_sub_explicit(&object->refcount, 1, memory_order_release);
     if(old == 1)
     {
+        atomic_thread_fence(memory_order_acquire);
         /* trigger handler */
         EVClass *class = EVClassGetByID(object->typeID);
         assert(class != NULL);
