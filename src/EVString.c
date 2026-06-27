@@ -135,19 +135,24 @@ static bool __EVStringEqual(EVStringRef stringRef1,
     EVString string1 = (EVString)stringRef1;
     EVString string2 = (EVString)stringRef2;
 
-    /* encoding must match */
-    if(string1->encoding != string2->encoding)
-    {
-        return false;
-    }
-
     /* size must match */
     if(string1->len != string2->len)
     {
         return false;
     }
 
-    return (strncmp(string1->buf, string2->buf, string1->len) == 0);
+    /* strings must comply to their encodings */
+    if(string1->encoding != string2->encoding)
+    {
+        bool string1_complies = __EVStringValidateEncoding(string2->encoding, string1->buf, string1->len);
+        bool string2_complies = __EVStringValidateEncoding(string1->encoding, string2->buf, string2->len);
+        if(!string1_complies || !string2_complies)
+        {
+            return false;
+        }
+    }
+
+    return (memcmp(string1->buf, string2->buf, string1->len) == 0);
 }
 
 static EVClass EVStringClass = {
