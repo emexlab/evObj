@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <evObj/runtime/EVBase.h>
+#include <evObj/runtime/EVAllocator.h>
 
 static _Atomic(EVClass *) ev_class_table[EV_MAX_CLASSES];
 static _Atomic(uint64_t) ev_class_next = 1;
@@ -105,7 +106,7 @@ void EVRelease(EVObjectRef ref)
         {
             class->deinit(ref);
         }
-        free(object);
+        EVObjectDealloc(object);
     }
     else if(old <= 0)
     {

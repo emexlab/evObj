@@ -27,6 +27,9 @@
 
 #include <evObj/runtime/EVBase.h>
 
-EVObjectRef EVAlloc(EVTypeID typeID);
+extern EVAllocator *kEVAllocatorDefault;
+
+EVObjectRef EVObjectAlloc(EVAllocator *allocator, EVTypeID typeID);
+void EVObjectDealloc(EVObjectRef ref);
 
 #endif /* EVALLOCATOR_H */

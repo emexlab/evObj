@@ -42,6 +42,9 @@ typedef void (*evobject_deinit_handler_t)(EVObjectRef ref);
 typedef EVObjectRef (*evobject_copy_handler_t)(EVObjectRef ref);
 typedef bool (*evobject_equal_handler_t)(EVObjectRef ref1, EVObjectRef ref2);
 
+typedef EVObjectRef (*evallocator_alloc_handler_t)(EVTypeID typeID);
+typedef void (*evallocator_dealloc_handler_t)(EVObjectRef ref);
+
 typedef struct {
     /* properties  */
     const char *name;
@@ -56,11 +59,23 @@ typedef struct {
 } EVClass;
 
 typedef struct {
+    /* properties  */
+    const char *name;
+
+    /* handlers */
+    evallocator_alloc_handler_t allocate;
+    evallocator_dealloc_handler_t deallocate;
+} EVAllocator;
+
+typedef struct {
     /*
      * the typeID of the class of that
      * object, similar to CFRuntime.
      */
     EVTypeID typeID;
+
+    /* self explainatory */
+    EVAllocator *allocator;
 
     /*
      * reference count of an object if

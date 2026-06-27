@@ -121,7 +121,7 @@ EVNumberRef EVNumberCreate(kEVNumberType type,
         return NULL;
     }
 
-    EVNumber num = EVAlloc(EVNumberGetTypeID());
+    EVNumber num = EVObjectAlloc(kEVAllocatorDefault, EVNumberGetTypeID());
     if(num == NULL)
     {
         return NULL;
