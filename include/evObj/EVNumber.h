@@ -25,7 +25,7 @@
 #ifndef EVNUMBER_H
 #define EVNUMBER_H
 
-#include <evObj/runtime/defs.h>
+#include <evObj/runtime/EVBase.h>
 
 typedef enum: uint8_t {
     kEVNumberTypeSInt8,

@@ -22,13 +22,7 @@
  * SOFTWARE.
  */
 
-#ifndef EVOBJECT_BASE_H
-#define EVOBJECT_BASE_H
+#ifndef EVSTRING_H
+#define EVSTRING_H
 
-#include <evObj/runtime/defs.h>
-
-EVTypeID EVGetTypeID(EVObjectRef ref);
-
-bool EVEqual(EVObjectRef ref1, EVObjectRef ref2);
-
-#endif /* EVOBJECT_BASE_H */
+#endif /* EVSTRING_H */

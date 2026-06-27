@@ -25,10 +25,9 @@
 #include <string.h>
 #include <pthread.h>
 #include <assert.h>
-#include <evObj/runtime/defs.h>
-#include <evObj/runtime/alloc.h>
-#include <evObj/runtime/reference.h>
-#include <evObj/runtime/register.h>
+#include <evObj/runtime/EVBase.h>
+#include <evObj/runtime/EVAllocator.h>
+#include <evObj/runtime/EVBase.h>
 #include <evObj/EVNumber.h>
 
 typedef struct EVNumber {

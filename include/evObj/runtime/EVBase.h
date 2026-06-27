@@ -22,14 +22,17 @@
  * SOFTWARE.
  */
 
-#ifndef EVOBJECT_DEFS_H
-#define EVOBJECT_DEFS_H
+#ifndef EVBASE_H
+#define EVBASE_H
 
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdatomic.h>
 #include <pthread.h>
+
+#define kEVNotATypeID   ((uint64_t)0)
+#define EV_MAX_CLASSES  1024
 
 typedef uint64_t EVTypeID;
 typedef void * EVObjectRef;  /* so the compiler shuts up */
@@ -67,4 +70,14 @@ typedef struct evobject {
     _Atomic int refcount;
 } EVObject;
 
-#endif /* EVOBJECT_DEFS_H */
+EVTypeID EVGetTypeID(EVObjectRef ref);
+bool EVEqual(EVObjectRef ref1, EVObjectRef ref2);
+
+EVObjectRef EVRetain(EVObjectRef ref);
+void EVRelease(EVObjectRef ref);
+int EVGetRetainCount(EVObjectRef ref);
+
+EVTypeID EVClassRegister(EVClass *cls);
+EVClass *EVClassGetByID(EVTypeID id);
+
+#endif /* EVBASE_H */

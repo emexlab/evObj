@@ -26,10 +26,10 @@
 #define EVOBJ_H
 
 /* runtime */
-#include <evObj/runtime/defs.h>
-#include <evObj/runtime/base.h>
+#include <evObj/runtime/EVBase.h>
+#include <evObj/runtime/EVBase.h>
 #include <evObj/runtime/alloc.h>
-#include <evObj/runtime/reference.h>
+#include <evObj/runtime/EVBase.h>
 #include <evObj/runtime/register.h>
 
 /* types */

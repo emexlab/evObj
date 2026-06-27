@@ -22,11 +22,47 @@
  * SOFTWARE.
  */
 
-#include <evObj/runtime/reference.h>
-#include <evObj/runtime/register.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <evObj/runtime/EVBase.h>
+
+static _Atomic(EVClass *) ev_class_table[EV_MAX_CLASSES];
+static _Atomic(uint64_t) ev_class_next = 1;
+
+EVTypeID EVGetTypeID(EVObjectRef ref)
+{
+    return ((EVObject*)ref)->typeID;
+}
+
+bool EVEqual(EVObjectRef ref1,
+             EVObjectRef ref2)
+{
+    if(ref1 == ref2)
+    {
+        return true;
+    }
+    if(ref1 == NULL || ref2 == NULL)
+    {
+        return false;
+    }
+
+    /* types must match */
+    EVTypeID typeID = EVGetTypeID(ref1);
+    if(typeID != EVGetTypeID(ref2))
+    {
+        return false;
+    }
+
+    EVClass *class = EVClassGetByID(typeID);
+    if(class->equal != NULL)
+    {
+        return class->equal(ref1, ref2);
+    }
+
+    /* no handler == not equal */
+    return false;
+}
 
 EVObjectRef EVRetain(EVObjectRef ref)
 {
@@ -83,3 +119,26 @@ int EVGetRetainCount(EVObjectRef ref)
     EVObject *object = (EVObject*)ref;
     return atomic_load(&object->refcount);
 }
+
+EVTypeID EVClassRegister(EVClass *cls)
+{
+    uint64_t id = atomic_fetch_add_explicit(&ev_class_next, 1, memory_order_relaxed);
+    if(id >= EV_MAX_CLASSES)
+    {
+        return kEVNotATypeID;
+    }
+
+    cls->typeID = id;
+    atomic_store_explicit(&ev_class_table[id], cls, memory_order_release);
+    return id;
+}
+
+EVClass *EVClassGetByID(EVTypeID id)
+{
+    if(id == kEVNotATypeID || id >= EV_MAX_CLASSES)
+    {
+        return NULL;
+    }
+    return atomic_load_explicit(&ev_class_table[id], memory_order_acquire);
+}
+

@@ -8,10 +8,8 @@ project(evObj
 find_package(Threads REQUIRED)
 
 add_library(evObj STATIC
-    src/runtime/base.c
-    src/runtime/alloc.c
-    src/runtime/reference.c
-    src/runtime/register.c
+    src/runtime/EVBase.c
+    src/runtime/EVAllocator.c
 
     src/EVNumber.c
 )

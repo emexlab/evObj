@@ -22,9 +22,8 @@
  * SOFTWARE.
  */
 
-#include <evObj/runtime/alloc.h>
-#include <evObj/runtime/reference.h>
-#include <evObj/runtime/register.h>
+#include <evObj/runtime/EVBase.h>
+#include <evObj/runtime/EVAllocator.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
