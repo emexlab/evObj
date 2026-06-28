@@ -49,10 +49,8 @@ EVTypeID EVArrayGetTypeID(void);
 
 EVMutableArrayRef EVArrayCreateMutable(EVAllocator *allocator, EVArrayCallbacks callbacks, uint64_t capacity);
 
-/*
 EVMutableArrayRef EVArrayCreateMutableCopy(EVAllocator *allocator, EVArrayRef arrayRef);
 EVArrayRef EVArrayCreateCopy(EVAllocator *allocator, EVArrayRef arrayRef);
-*/
 
 uint64_t EVArrayGetCount(EVArrayRef arrayRef);
 void *EVArrayGetValueAtIndex(EVArrayRef arrayRef, uint64_t index);

@@ -169,6 +169,48 @@ EVMutableArrayRef EVArrayCreateMutable(EVAllocator *allocator,
     return (EVMutableArrayRef)array;
 }
 
+static EVArrayRef __EVArrayCreateCopy(EVAllocator *allocator,
+                                      EVArrayRef arrayRef,
+                                      bool mutable)
+{
+    if(arrayRef == NULL)
+    {
+        return NULL;
+    }
+
+    EVArray srcArray = (EVArray)arrayRef;
+    EVMutableArrayRef copyArrayRef = EVArrayCreateMutable(allocator, srcArray->callbacks, srcArray->items_cnt);
+    if(copyArrayRef == NULL)
+    {
+        return NULL;
+    }
+
+    for(uint64_t index = 0; index < srcArray->items_cnt; index++)
+    {
+        if(!EVArrayAppendValue(copyArrayRef, srcArray->items[index]))
+        {
+            EVRelease((EVObjectRef)copyArrayRef);
+            return NULL;
+        }
+    }
+
+    ((EVArray)copyArrayRef)->mutable = mutable;
+
+    return (EVArrayRef)copyArrayRef;
+}
+
+EVMutableArrayRef EVArrayCreateMutableCopy(EVAllocator *allocator,
+                                           EVArrayRef arrayRef)
+{
+    return (EVMutableArrayRef)__EVArrayCreateCopy(allocator, arrayRef, true);
+}
+
+EVArrayRef EVArrayCreateCopy(EVAllocator *allocator,
+                             EVArrayRef arrayRef)
+{
+    return (EVMutableArrayRef)__EVArrayCreateCopy(allocator, arrayRef, false);
+}
+
 uint64_t EVArrayGetCount(EVArrayRef arrayRef)
 {
     if(arrayRef == NULL)
