@@ -64,7 +64,6 @@ EVAllocator *kEVAllocatorDefault = &(EVAllocator){
     .deallocate = __EVAllocatorDefaultDeallocate,
 };
 
-
 EVObjectRef EVObjectAlloc(EVAllocator *allocator,
                           EVTypeID typeID)
 {
