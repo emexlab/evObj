@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+#include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
@@ -300,6 +301,56 @@ EVStringRef EVStringCreateWithCBufferNoCopy(EVAllocatorRef allocatorRef,
     string->encoding = encoding;
 
     return (EVStringRef)string;
+}
+
+EVStringRef EVStringCreateWithFormatAndArguments(EVAllocatorRef allocatorRef,
+                                                 EVStringRef formatStringRef,
+                                                 va_list arguments)
+{
+    if(formatStringRef == NULL)
+    {
+        return NULL;
+    }
+
+    const char *fmtCptr = EVStringGetCStringPtr(formatStringRef, kEVStringEncodingUTF8);
+    if(fmtCptr == NULL)
+    {
+        return NULL;
+    }
+
+    va_list measure;
+    va_copy(measure, arguments);
+    int needed = vsnprintf(NULL, 0, fmtCptr, measure);
+    va_end(measure);
+
+    if(needed < 0)
+    {
+        return NULL;
+    }
+
+    size_t bufsize = (size_t)needed + 1;
+    char *buf = malloc(bufsize);
+    if(buf == NULL)
+    {
+        return NULL;
+    }
+
+    vsnprintf(buf, bufsize, fmtCptr, arguments);
+    EVStringRef resultRef = EVStringCreateWithCBuffer(allocatorRef, (const uint8_t *)buf, (size_t)needed, kEVStringEncodingUTF8);
+    free(buf);
+
+    return resultRef;
+}
+
+EVStringRef EVStringCreateWithFormat(EVAllocatorRef allocatorRef,
+                                     EVStringRef formatStringRef,
+                                     ...)
+{
+    va_list arguments;
+    va_start(arguments, formatStringRef);
+    EVStringRef resultRef = EVStringCreateWithFormatAndArguments(allocatorRef, formatStringRef, arguments);
+    va_end(arguments);
+    return resultRef;
 }
 
 EVStringRef EVStringCreateCopy(EVAllocatorRef allocatorRef,
