@@ -77,6 +77,9 @@ typedef struct {
     /* self explainatory */
     EVAllocator *allocator;
 
+    /* set once */
+    bool is_stack_obj;
+
     /*
      * reference count of an object if
      * it hits zero it will release

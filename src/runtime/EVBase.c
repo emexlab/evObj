@@ -69,6 +69,10 @@ EVObjectRef EVRetain(EVObjectRef ref)
 {
     EVObject *object = (EVObject*)ref;
     assert(object != NULL);
+    if(object->is_stack_obj)
+    {
+        return ref;
+    }
     atomic_fetch_add_explicit(&object->refcount, 1, memory_order_relaxed);
     return ref;
 }
@@ -77,6 +81,10 @@ void EVRelease(EVObjectRef ref)
 {
     EVObject *object = (EVObject*)ref;
     assert(object != NULL);
+    if(object->is_stack_obj)
+    {
+        return;
+    }
 
     /* releasing and trying to get the old reference count */
     int old = atomic_fetch_sub_explicit(&object->refcount, 1, memory_order_release);

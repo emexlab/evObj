@@ -48,6 +48,7 @@ static EVObjectRef __EVAllocatorDefaultAllocate(EVAllocatorRef allocatorRef,
     {
         return NULL;
     }
+    object->is_stack_obj = false;
     object->refcount = 1;
     object->typeID = class->typeID;
     object->allocator = allocator;

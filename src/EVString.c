@@ -29,13 +29,7 @@
 #include <evObj/runtime/EVAllocator.h>
 #include <evObj/EVString.h>
 
-typedef struct EVString {
-    EVObject header;
-    kEVStringEncoding encoding;
-    bool is_inlined;    /* meaning the object has the string buffer in it self */
-    char *buf;
-    size_t len;
-} *EVString;
+typedef __EVString EVString;
 
 static bool __EVStringValidateEncoding(kEVStringEncoding encoding,
                                        const char *buf,
@@ -120,15 +114,13 @@ static bool __EVStringValidateEncoding(kEVStringEncoding encoding,
     return false;
 }
 
-#include <stdio.h>
-
 static void __EVStringInit(EVStringRef stringRef)
 {
     EVString string = (EVString)stringRef;
 
     /* we first automatically expect it to be at the inline */
     string->is_inlined = true;
-    string->buf = (char*)((const char*)string + sizeof(struct EVString));
+    string->buf = (char*)((const char*)string + sizeof(struct __EVString));
 }
 
 static bool __EVStringEqual(EVStringRef stringRef1,
@@ -196,7 +188,7 @@ EVStringRef EVStringCreateWithCString(EVAllocatorRef allocatorRef,
     }
 
     /* inline buffer and nullterminator counts */
-    EVString string = EVObjectAlloc(allocatorRef, EVStringGetTypeID(), sizeof(struct EVString) + len + 1);
+    EVString string = EVObjectAlloc(allocatorRef, EVStringGetTypeID(), sizeof(struct __EVString) + len + 1);
     if(string == NULL)
     {
         return NULL;
@@ -226,7 +218,7 @@ EVStringRef EVStringCreateWithCStringNoCopy(EVAllocatorRef allocatorRef,
         return NULL;
     }
 
-    EVString string = EVObjectAlloc(allocatorRef, EVStringGetTypeID(), sizeof(struct EVString));
+    EVString string = EVObjectAlloc(allocatorRef, EVStringGetTypeID(), sizeof(struct __EVString));
     if(string == NULL)
     {
         return NULL;
@@ -255,7 +247,7 @@ EVStringRef EVStringCreateWithCBuffer(EVAllocatorRef allocatorRef,
         return NULL;
     }
 
-    EVString string = EVObjectAlloc(allocatorRef, EVStringGetTypeID(), sizeof(struct EVString) + len + 1);
+    EVString string = EVObjectAlloc(allocatorRef, EVStringGetTypeID(), sizeof(struct __EVString) + len + 1);
     if(string == NULL)
     {
         return NULL;
@@ -304,19 +296,12 @@ const char *EVStringGetCStringPtr(EVStringRef stringRef,
     }
 
     EVString string = (EVString)stringRef;
-
-    const char *buf = string->buf;
-    if(buf == NULL)
-    {
-        buf = (const char *)((const uint8_t*)string + sizeof(struct EVString)); /* buffer is inline */
-    }
-
-    if(!__EVStringValidateEncoding(encoding, buf, string->len))
+    if(!__EVStringValidateEncoding(encoding, string->buf, string->len))
     {
         return NULL;
     }
 
-    return buf;
+    return string->buf;
 }
 
 size_t EVStringGetLength(EVStringRef stringRef)
@@ -418,6 +403,7 @@ EVArrayRef EVStringComponentsSplitBySeparator(EVStringRef stringRef,
             }
 
             last_len_match = i + separatorString->len;
+            i += separatorString->len - 1;
         }
     }
 

@@ -38,6 +38,27 @@ typedef enum: uint8_t {
 
 typedef EVObjectRef EVStringRef;
 
+typedef struct __EVString {
+    EVObject header;
+    kEVStringEncoding encoding;
+    bool is_inlined;    /* meaning the object has the string buffer in it self */
+    char *buf;
+    size_t len;
+} *__EVString;
+
+#define EV_STR(cStr) EV_STR_ENC(cStr, kEVStringEncodingUTF8)
+
+#define EV_STR_ENC(cStr, enc) (__extension__ ({ \
+    static struct __EVString _evk = { \
+        .encoding = (enc), \
+        .is_inlined = false, \
+        .buf = (char *)("" cStr ""), \
+        .len = sizeof("" cStr "") - 1, \
+        .header.is_stack_obj = true, \
+    }; \
+    (EVStringRef)&_evk; \
+}))
+
 EVTypeID EVStringGetTypeID(void);
 
 EVStringRef EVStringCreateWithCString(EVAllocatorRef allocatorRef, const char *str, kEVStringEncoding encoding);
