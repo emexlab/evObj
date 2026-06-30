@@ -42,13 +42,12 @@ typedef void (*evobject_deinit_handler_t)(EVObjectRef ref);
 typedef EVObjectRef (*evobject_copy_handler_t)(EVObjectRef ref);
 typedef bool (*evobject_equal_handler_t)(EVObjectRef ref1, EVObjectRef ref2);
 
-typedef EVObjectRef (*evallocator_alloc_handler_t)(EVTypeID typeID);
+typedef EVObjectRef (*evallocator_alloc_handler_t)(EVTypeID typeID, size_t size);
 typedef void (*evallocator_dealloc_handler_t)(EVObjectRef ref);
 
 typedef struct {
     /* properties  */
     const char *name;
-    size_t size;                    /* must be bigger than the header it self */
     EVTypeID typeID;
 
     /* handlers */

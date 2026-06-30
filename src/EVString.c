@@ -158,7 +158,6 @@ static bool __EVStringEqual(EVStringRef stringRef1,
 static EVClass EVStringClass = {
     .name = "EVString",
     .typeID = kEVNotATypeID,
-    .size = sizeof(struct EVString),
     .init = NULL,
     .deinit = __EVStringDealloc,
     .equal = __EVStringEqual,
@@ -191,7 +190,7 @@ EVStringRef EVStringCreateWithCString(EVAllocator *allocator,
         return NULL;
     }
 
-    EVString string = EVObjectAlloc(allocator, EVStringGetTypeID());
+    EVString string = EVObjectAlloc(allocator, EVStringGetTypeID(), sizeof(struct EVString));
     if(string == NULL)
     {
         return NULL;
@@ -220,7 +219,7 @@ EVStringRef EVStringCreateWithCStringNoCopy(EVAllocator *allocator,
         return NULL;
     }
 
-    EVString string = EVObjectAlloc(allocator, EVStringGetTypeID());
+    EVString string = EVObjectAlloc(allocator, EVStringGetTypeID(), sizeof(struct EVString));
     if(string == NULL)
     {
         return NULL;

@@ -29,7 +29,7 @@
 
 extern EVAllocator *kEVAllocatorDefault;
 
-EVObjectRef EVObjectAlloc(EVAllocator *allocator, EVTypeID typeID);
+EVObjectRef EVObjectAlloc(EVAllocator *allocator, EVTypeID typeID, size_t size);
 void EVObjectDealloc(EVObjectRef ref);
 
 #endif /* EVALLOCATOR_H */

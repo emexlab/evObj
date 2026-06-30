@@ -93,7 +93,6 @@ static bool __EVNumberEqual(EVNumberRef ref1,
 static EVClass EVNumberClass = {
     .name = "EVNumber",
     .typeID = kEVNotATypeID,
-    .size = sizeof(struct EVNumber),
     .init = NULL,
     .deinit = NULL,
     .equal = __EVNumberEqual,
@@ -120,7 +119,7 @@ EVNumberRef EVNumberCreate(EVAllocator *allocator,
         return NULL;
     }
 
-    EVNumber num = EVObjectAlloc(allocator, EVNumberGetTypeID());
+    EVNumber num = EVObjectAlloc(allocator, EVNumberGetTypeID(), sizeof(struct EVNumber));
     if(num == NULL)
     {
         return NULL;

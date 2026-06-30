@@ -115,7 +115,6 @@ static bool __EVArrayClassEqual(EVArrayRef arrayRef1,
 static EVClass EVArrayClass = {
     .name = "EVArray",
     .typeID = kEVNotATypeID,
-    .size = sizeof(struct EVArray),
     .init = NULL,
     .deinit = __EVArrayClassDeinit,
     .equal = __EVArrayClassEqual,
@@ -152,7 +151,7 @@ EVMutableArrayRef EVArrayCreateMutable(EVAllocator *allocator,
         }
     }
 
-    EVArray array = (EVArray)EVObjectAlloc(allocator, EVArrayGetTypeID());
+    EVArray array = (EVArray)EVObjectAlloc(allocator, EVArrayGetTypeID(), sizeof(struct EVArray));
     if(array == NULL)
     {
         free(items);
