@@ -39,10 +39,9 @@ typedef EVObjectRef EVStringRef;
 
 EVTypeID EVStringGetTypeID(void);
 
-EVStringRef EVStringCreateWithCString(EVAllocator *allocator, const char *str, kEVStringEncoding encoding);
-EVStringRef EVStringCreateWithCStringNoCopy(EVAllocator *allocator, const char *str, kEVStringEncoding encoding);
-
-EVStringRef EVStringCreateCopy(EVAllocator *allocator, EVStringRef stringRef);
+EVStringRef EVStringCreateWithCString(EVAllocatorRef allocatorRef, const char *str, kEVStringEncoding encoding);
+EVStringRef EVStringCreateWithCStringNoCopy(EVAllocatorRef allocatorRef, const char *str, kEVStringEncoding encoding);
+EVStringRef EVStringCreateCopy(EVAllocatorRef allocatorRef, EVStringRef stringRef);
 
 const char *EVStringGetCStringPtr(EVStringRef stringRef, kEVStringEncoding encoding);
 size_t EVStringGetLength(EVStringRef stringRef);

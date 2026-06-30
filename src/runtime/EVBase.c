@@ -102,11 +102,13 @@ void EVRelease(EVObjectRef ref)
 int EVGetRetainCount(EVObjectRef ref)
 {
     EVObject *object = (EVObject*)ref;
+    assert(object != NULL);
     return atomic_load(&object->refcount);
 }
 
 EVTypeID EVClassRegister(EVClass *cls)
 {
+    assert(cls != NULL);
     uint64_t id = atomic_fetch_add_explicit(&ev_class_next, 1, memory_order_relaxed);
     if(id >= EV_MAX_CLASSES)
     {
@@ -127,8 +129,9 @@ EVClass *EVClassGetByID(EVTypeID id)
     return atomic_load_explicit(&ev_class_table[id], memory_order_acquire);
 }
 
-EVAllocator *EVGetAllocator(EVObjectRef ref)
+EVAllocatorRef EVGetAllocator(EVObjectRef ref)
 {
     EVObject *object = (EVObject*)ref;
+    assert(object != NULL);
     return object->allocator;
 }

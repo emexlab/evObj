@@ -110,7 +110,7 @@ EVTypeID EVNumberGetTypeID(void)
     return EVNumberClass.typeID;
 }
 
-EVNumberRef EVNumberCreate(EVAllocator *allocator,
+EVNumberRef EVNumberCreate(EVAllocatorRef allocatorRef,
                            kEVNumberType type,
                            const void *value)
 {
@@ -119,7 +119,7 @@ EVNumberRef EVNumberCreate(EVAllocator *allocator,
         return NULL;
     }
 
-    EVNumber num = EVObjectAlloc(allocator, EVNumberGetTypeID(), sizeof(struct EVNumber));
+    EVNumber num = EVObjectAlloc(allocatorRef, EVNumberGetTypeID(), sizeof(struct EVNumber));
     if(num == NULL)
     {
         return NULL;

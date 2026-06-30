@@ -175,7 +175,7 @@ EVTypeID EVStringGetTypeID(void)
     return EVStringClass.typeID;
 }
 
-EVStringRef EVStringCreateWithCString(EVAllocator *allocator,
+EVStringRef EVStringCreateWithCString(EVAllocatorRef allocatorRef,
                                       const char *str,
                                       kEVStringEncoding encoding)
 {
@@ -190,7 +190,7 @@ EVStringRef EVStringCreateWithCString(EVAllocator *allocator,
         return NULL;
     }
 
-    EVString string = EVObjectAlloc(allocator, EVStringGetTypeID(), sizeof(struct EVString));
+    EVString string = EVObjectAlloc(allocatorRef, EVStringGetTypeID(), sizeof(struct EVString));
     if(string == NULL)
     {
         return NULL;
@@ -204,7 +204,7 @@ EVStringRef EVStringCreateWithCString(EVAllocator *allocator,
     return (EVStringRef)string;
 }
 
-EVStringRef EVStringCreateWithCStringNoCopy(EVAllocator *allocator,
+EVStringRef EVStringCreateWithCStringNoCopy(EVAllocatorRef allocatorRef,
                                             const char *str,
                                             kEVStringEncoding encoding)
 {
@@ -219,7 +219,7 @@ EVStringRef EVStringCreateWithCStringNoCopy(EVAllocator *allocator,
         return NULL;
     }
 
-    EVString string = EVObjectAlloc(allocator, EVStringGetTypeID(), sizeof(struct EVString));
+    EVString string = EVObjectAlloc(allocatorRef, EVStringGetTypeID(), sizeof(struct EVString));
     if(string == NULL)
     {
         return NULL;
@@ -233,7 +233,7 @@ EVStringRef EVStringCreateWithCStringNoCopy(EVAllocator *allocator,
     return (EVStringRef)string;
 }
 
-EVStringRef EVStringCreateCopy(EVAllocator *allocator,
+EVStringRef EVStringCreateCopy(EVAllocatorRef allocatorRef,
                                EVStringRef stringRef)
 {
     if(stringRef == NULL)
@@ -241,8 +241,13 @@ EVStringRef EVStringCreateCopy(EVAllocator *allocator,
         return NULL;
     }
 
+    if(allocatorRef == NULL)
+    {
+        allocatorRef = EVGetAllocator(stringRef);
+    }
+
     EVString string = (EVString)stringRef;
-    return EVStringCreateWithCString(EVGetAllocator(stringRef), string->buf, string->encoding);
+    return EVStringCreateWithCString(allocatorRef, string->buf, string->encoding);
 }
 
 const char *EVStringGetCStringPtr(EVStringRef stringRef,

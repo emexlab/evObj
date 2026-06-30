@@ -132,7 +132,7 @@ EVTypeID EVArrayGetTypeID(void)
     return EVArrayClass.typeID;
 }
 
-EVMutableArrayRef EVArrayCreateMutable(EVAllocator *allocator,
+EVMutableArrayRef EVArrayCreateMutable(EVAllocatorRef allocatorRef,
                                        EVArrayCallbacks callbacks,
                                        uint64_t capacity)
 {
@@ -151,7 +151,7 @@ EVMutableArrayRef EVArrayCreateMutable(EVAllocator *allocator,
         }
     }
 
-    EVArray array = (EVArray)EVObjectAlloc(allocator, EVArrayGetTypeID(), sizeof(struct EVArray));
+    EVArray array = (EVArray)EVObjectAlloc(allocatorRef, EVArrayGetTypeID(), sizeof(struct EVArray));
     if(array == NULL)
     {
         free(items);
@@ -167,7 +167,7 @@ EVMutableArrayRef EVArrayCreateMutable(EVAllocator *allocator,
     return (EVMutableArrayRef)array;
 }
 
-static EVArrayRef __EVArrayCreateCopy(EVAllocator *allocator,
+static EVArrayRef __EVArrayCreateCopy(EVAllocatorRef allocatorRef,
                                       EVArrayRef arrayRef,
                                       bool mutable)
 {
@@ -177,7 +177,7 @@ static EVArrayRef __EVArrayCreateCopy(EVAllocator *allocator,
     }
 
     EVArray srcArray = (EVArray)arrayRef;
-    EVMutableArrayRef copyArrayRef = EVArrayCreateMutable(allocator, srcArray->callbacks, srcArray->items_cnt);
+    EVMutableArrayRef copyArrayRef = EVArrayCreateMutable(allocatorRef, srcArray->callbacks, srcArray->items_cnt);
     if(copyArrayRef == NULL)
     {
         return NULL;

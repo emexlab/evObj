@@ -37,14 +37,15 @@
 typedef uint64_t EVTypeID;
 typedef void * EVObjectRef;  /* so the compiler shuts up */
 typedef struct EVAllocator EVAllocator;
+typedef void * EVAllocatorRef;
 
 typedef void (*evobject_init_handler_t)(EVObjectRef ref);
 typedef void (*evobject_deinit_handler_t)(EVObjectRef ref);
 typedef EVObjectRef (*evobject_copy_handler_t)(EVObjectRef ref);
 typedef bool (*evobject_equal_handler_t)(EVObjectRef ref1, EVObjectRef ref2);
 
-typedef EVObjectRef (*evallocator_alloc_handler_t)(EVAllocator *allocator, EVTypeID typeID, size_t size);
-typedef void (*evallocator_dealloc_handler_t)(EVAllocator *allocator, EVObjectRef ref);
+typedef EVObjectRef (*evallocator_alloc_handler_t)(EVAllocatorRef allocatorRef, EVTypeID typeID, size_t size);
+typedef void (*evallocator_dealloc_handler_t)(EVAllocatorRef allocatorRef, EVObjectRef ref);
 
 typedef struct {
     /* properties  */
@@ -94,6 +95,6 @@ int EVGetRetainCount(EVObjectRef ref);
 EVTypeID EVClassRegister(EVClass *cls);
 EVClass *EVClassGetByID(EVTypeID id);
 
-EVAllocator *EVGetAllocator(EVObjectRef ref);
+EVAllocatorRef EVGetAllocator(EVObjectRef ref);
 
 #endif /* EVBASE_H */

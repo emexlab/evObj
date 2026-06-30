@@ -28,10 +28,12 @@
 #include <string.h>
 #include <assert.h>
 
-static EVObjectRef __EVAllocatorDefaultAllocate(EVAllocator *allocator,
+static EVObjectRef __EVAllocatorDefaultAllocate(EVAllocatorRef allocatorRef,
                                                 EVTypeID typeID,
                                                 size_t size)
 {
+    EVAllocator *allocator = (EVAllocator*)allocatorRef;
+
     /*
      * gotta need the class for the typeid
      * and the init handler.
@@ -59,28 +61,29 @@ static EVObjectRef __EVAllocatorDefaultAllocate(EVAllocator *allocator,
     return (EVObjectRef)object;
 }
 
-static void __EVAllocatorDefaultDeallocate(EVAllocator *allocator,
+static void __EVAllocatorDefaultDeallocate(EVAllocatorRef allocatorRef,
                                            EVObjectRef ref)
 {
     free(ref);
 }
 
-EVAllocator *kEVAllocatorDefault = &(EVAllocator){
+EVAllocatorRef kEVAllocatorDefault = (EVAllocatorRef)&(EVAllocator){
     .name = "EVAllocatorDefault",
     .allocate = __EVAllocatorDefaultAllocate,
     .deallocate = __EVAllocatorDefaultDeallocate,
 };
 
-EVObjectRef EVObjectAlloc(EVAllocator *allocator,
+EVObjectRef EVObjectAlloc(EVAllocatorRef allocatorRef,
                           EVTypeID typeID,
                           size_t size)
 {
-    if(allocator == NULL)
+    if(allocatorRef == NULL)
     {
-        allocator = kEVAllocatorDefault;
+        allocatorRef = kEVAllocatorDefault;
     }
 
     /* checking if allocator is correctly configured (it must) */
+    EVAllocator *allocator = (EVAllocator*)allocatorRef;
     assert(allocator->allocate != NULL && allocator->deallocate != NULL);
 
     return allocator->allocate(allocator, typeID, size);

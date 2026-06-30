@@ -47,7 +47,7 @@ extern EVArrayCallbacks kEVArrayCallbacksObjectCallbacks;
 
 EVTypeID EVArrayGetTypeID(void);
 
-EVMutableArrayRef EVArrayCreateMutable(EVAllocator *allocator, EVArrayCallbacks callbacks, uint64_t capacity);
+EVMutableArrayRef EVArrayCreateMutable(EVAllocatorRef allocatorRef, EVArrayCallbacks callbacks, uint64_t capacity);
 
 EVMutableArrayRef EVArrayCreateMutableCopy(EVAllocator *allocator, EVArrayRef arrayRef);
 EVArrayRef EVArrayCreateCopy(EVAllocator *allocator, EVArrayRef arrayRef);
