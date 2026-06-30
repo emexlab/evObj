@@ -597,6 +597,7 @@ EVStringRef EVStringCreateWithFormatAndArguments(EVAllocatorRef allocatorRef,
             EVStringRef descriptionRef = EVCopyDescription(obj);
             const char *d = EVStringGetCStringPtr(descriptionRef, kEVStringEncodingUTF8);
             __evfb_bytes(&b, d, strlen(d));
+            EVRelease(descriptionRef);
             continue;
         }
 
@@ -611,7 +612,7 @@ EVStringRef EVStringCreateWithFormatAndArguments(EVAllocatorRef allocatorRef,
         free(b.data);
         return NULL;
     }
-    
+
     EVStringRef resultRef = EVStringCreateWithCBuffer(allocatorRef, (const uint8_t *)(b.data ? b.data : ""), b.len, kEVStringEncodingUTF8);
     free(b.data);
     return resultRef;
