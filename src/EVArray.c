@@ -127,7 +127,7 @@ static EVStringRef __EVArrayCopyDescription(EVArrayRef arrayRef)
     EVAllocatorRef allocatorRef = EVGetAllocator(arrayRef);
     EVClass *cls = EVClassGetByID(array->header.typeID);
 
-    EVStringRef baseStringRef = EVStringCreateWithFormat(allocatorRef, EV_STR("<%s %p>{count = %d, items = {"), cls->name, arrayRef, array->items_cnt);
+    EVStringRef baseStringRef = EVStringCreateWithFormat(allocatorRef, EV_STR("<%s %p>{count = %llu, items = {"), cls->name, arrayRef, array->items_cnt);
     if(baseStringRef == NULL)
     {
         return NULL;
