@@ -96,6 +96,7 @@ static EVClass EVNumberClass = {
     .init = NULL,
     .deinit = NULL,
     .equal = __EVNumberEqual,
+    .copyDescription = NULL,
 };
 
 static void EVNumberRegisterClass(void)

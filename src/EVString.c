@@ -121,7 +121,7 @@ static void __EVStringInit(EVStringRef stringRef)
     EVString string = (EVString)stringRef;
 
     /* we first automatically expect it to be at the inline */
-    string->mutable = false;
+    string->is_mutable = false;
     string->is_inlined = true;
     string->buf = (char*)((const char*)string + sizeof(struct __EVString));
 }
@@ -129,7 +129,7 @@ static void __EVStringInit(EVStringRef stringRef)
 static void __EVStringDeinit(EVStringRef stringRef)
 {
     EVString string = (EVString)stringRef;
-    if(string->mutable)
+    if(string->is_mutable)
     {
         free(string->buf);
     }
@@ -681,7 +681,7 @@ EVMutableStringRef EVStringCreateMutableCopy(EVAllocatorRef allocatorRef,
     mutableString->len = string->len;
     mutableString->encoding = string->encoding;
     mutableString->is_inlined = false;
-    mutableString->mutable = true;
+    mutableString->is_mutable = true;
 
     return (EVMutableStringRef)mutableString;
 }
@@ -834,7 +834,7 @@ static bool __EVIsWhitespace(char c)
 bool EVStringTrimWhitespace(EVMutableStringRef mutableStringRef)
 {
     EVString mutableString = (EVString)mutableStringRef;
-    if(mutableString == NULL || !mutableString->mutable)
+    if(mutableString == NULL || !mutableString->is_mutable)
     {
         return false;
     }
@@ -866,6 +866,38 @@ bool EVStringTrimWhitespace(EVMutableStringRef mutableStringRef)
     }
     mutableString->buf[new_len] = '\0';
     mutableString->len = new_len;
+
+    return true;
+}
+
+bool EVStringAppendString(EVMutableStringRef mutableStringRef,
+                          EVStringRef stringRef)
+{
+    EVString mutableString = (EVString)mutableStringRef;
+    EVString appendString = (EVString)stringRef;
+    if(mutableString == NULL || !mutableString->is_mutable ||
+       appendString == NULL)
+    {
+        return false;
+    }
+
+    /* append string must comply to the encoding of the other string */
+    if(!__EVStringValidateEncoding(mutableString->encoding, appendString->buf, appendString->len))
+    {
+        return false;
+    }
+
+    size_t total_new_len = mutableString->len + appendString->len + 1;
+    char *newp = realloc(mutableString->buf, total_new_len);
+    if(newp == NULL)
+    {
+        return false;
+    }
+    mutableString->buf = newp;
+
+    memcpy(mutableString->buf + mutableString->len, appendString->buf, appendString->len);
+    mutableString->buf[total_new_len - 1] = '\0';
+    mutableString->len = total_new_len - 1;
 
     return true;
 }

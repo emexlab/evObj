@@ -31,15 +31,18 @@
 
 typedef EVObjectRef EVArrayRef;
 typedef EVObjectRef EVMutableArrayRef;
+typedef EVObjectRef EVStringRef;
 
 typedef bool (*evarray_append_callback)(void *ptr);
 typedef void (*evarray_remove_callback)(void *ptr);
 typedef bool (*evarray_equal_callback)(void *ptr1, void *ptr2);
+typedef EVStringRef (*evarray_copyDescription_callback)(EVAllocatorRef allocatorRef, void *ptr);
 
 typedef struct EVArrayCallbacks {
     evarray_append_callback append;
     evarray_remove_callback remove;
     evarray_equal_callback equal;
+    evarray_copyDescription_callback copyDescription;
 } *EVArrayCallbacks;
 
 extern EVArrayCallbacks kEVArrayCallbacksDefaultCallbacks;

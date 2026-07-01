@@ -168,7 +168,7 @@ EVStringRef EVCopyDescription(EVObjectRef ref)
         }
     }
 
-    EVStringRef descriptionFallbackRef = EVStringCreateWithFormat(object->allocator, EV_STR("<%s: %p>"), cls->name, ref);
+    EVStringRef descriptionFallbackRef = EVStringCreateWithFormat(object->allocator, EV_STR("<%s %p>"), cls->name, ref);
     if(descriptionFallbackRef == NULL)
     {
         return EV_STR("<nil>");

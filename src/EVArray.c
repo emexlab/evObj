@@ -26,9 +26,10 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <string.h>
+#include <evObj/EVArray.h>
+#include <evObj/EVString.h>
 #include <evObj/runtime/EVBase.h>
 #include <evObj/runtime/EVAllocator.h>
-#include <evObj/EVArray.h>
 
 typedef struct EVArray {
     EVObject header;
@@ -45,6 +46,7 @@ EVArrayCallbacks kEVArrayCallbacksDefaultCallbacks = &(struct EVArrayCallbacks){
     .append = NULL,
     .remove = NULL,
     .equal = NULL,
+    .copyDescription = NULL,
 };
 
 static bool __EVArrayAppendObjectCallback(void *ptr)
@@ -64,10 +66,17 @@ static bool __EVArrayEqualObjectCallback(void *ptr1,
     return EVEqual((EVObjectRef)ptr1, (EVObjectRef)ptr2);
 }
 
+static EVStringRef __EVArrayCopyDescriptionObjectCallback(EVAllocatorRef allocatorRef,
+                                                          void *ptr)
+{
+    return EVStringCreateWithFormat(allocatorRef, EV_STR("%@"), (EVObjectRef)ptr);
+}
+
 EVArrayCallbacks kEVArrayCallbacksObjectCallbacks = &(struct EVArrayCallbacks){
     .append = __EVArrayAppendObjectCallback,
     .remove = __EVArrayRemoveObjectCallback,
     .equal = __EVArrayEqualObjectCallback,
+    .copyDescription = __EVArrayCopyDescriptionObjectCallback,
 };
 
 static void __EVArrayClassDeinit(EVArrayRef arrayRef)
@@ -112,12 +121,79 @@ static bool __EVArrayClassEqual(EVArrayRef arrayRef1,
     return true;
 }
 
+static EVStringRef __EVArrayCopyDescription(EVArrayRef arrayRef)
+{
+    EVArray array = (EVArray)arrayRef;
+    EVAllocatorRef allocatorRef = EVGetAllocator(arrayRef);
+    EVClass *cls = EVClassGetByID(array->header.typeID);
+
+    EVStringRef baseStringRef = EVStringCreateWithFormat(allocatorRef, EV_STR("<%s %p>{count = %d, items = {"), cls->name, arrayRef, array->items_cnt);
+    if(baseStringRef == NULL)
+    {
+        return NULL;
+    }
+
+    EVMutableStringRef mutableStringRef = EVStringCreateMutableCopy(allocatorRef, baseStringRef);
+    EVRelease(baseStringRef);
+    if(mutableStringRef == NULL)
+    {
+        return NULL;
+    }
+
+    for(uint64_t index = 0; index < array->items_cnt; index++)
+    {
+        if(index > 0)
+        {
+            if(!EVStringAppendString(mutableStringRef, EV_STR(", ")))
+            {
+                EVRelease(mutableStringRef);
+                return NULL;
+            }
+        }
+
+        void *ptr = EVArrayGetValueAtIndex(arrayRef, index);
+        EVStringRef stringRef = NULL;
+        if(array->callbacks->copyDescription)
+        {
+            stringRef = array->callbacks->copyDescription(allocatorRef, ptr);
+        }
+
+        if(stringRef == NULL)
+        {
+            stringRef = EVStringCreateWithFormat(allocatorRef, EV_STR("%p"), ptr);
+        }
+
+        if(stringRef == NULL)
+        {
+            EVRelease(mutableStringRef);
+            return NULL;
+        }
+
+        bool success = EVStringAppendString(mutableStringRef, stringRef);
+        EVRelease(stringRef);
+        if(!success)
+        {
+            EVRelease(mutableStringRef);
+            return NULL;
+        }
+    }
+
+    if(!EVStringAppendString(mutableStringRef, EV_STR("}}")))
+    {
+        EVRelease(mutableStringRef);
+        return NULL;   
+    }
+
+    return mutableStringRef;
+}
+
 static EVClass EVArrayClass = {
     .name = "EVArray",
     .typeID = kEVNotATypeID,
     .init = NULL,
     .deinit = __EVArrayClassDeinit,
     .equal = __EVArrayClassEqual,
+    .copyDescription = __EVArrayCopyDescription,
 };
 
 static void EVArrayRegisterClass(void)

@@ -43,7 +43,7 @@ typedef EVObjectRef EVMutableStringRef;
 typedef struct __EVString {
     EVObject header;
     kEVStringEncoding encoding;
-    bool mutable;
+    bool is_mutable;
     bool is_inlined;    /* meaning the object has the string buffer in it self */
     char *buf;          /* it is neither inlined nor undeallocatable if mutable */
     size_t len;
@@ -54,7 +54,7 @@ typedef struct __EVString {
 #define EV_STR_ENC(cStr, enc) (__extension__ ({ \
     static struct __EVString _evk = { \
         .encoding = (enc), \
-        .mutable = false, \
+        .is_mutable = false, \
         .is_inlined = false, \
         .buf = (char *)("" cStr ""), \
         .len = sizeof("" cStr "") - 1, \
@@ -82,5 +82,6 @@ bool EVStringGetCString(EVStringRef stringRef, char *str, size_t str_len, kEVStr
 EVArrayRef EVStringComponentsSplitBySeparator(EVStringRef stringRef, EVStringRef separatorStringRef);
 
 bool EVStringTrimWhitespace(EVMutableStringRef mutableStringRef);
+bool EVStringAppendString(EVMutableStringRef mutableStringRef, EVStringRef stringRef);
 
 #endif /* EVSTRING_H */
