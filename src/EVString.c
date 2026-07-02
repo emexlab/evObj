@@ -830,8 +830,8 @@ Boolean EVStringAppendString(EVMutableStringRef mutableStringRef,
         return false;
     }
 
-    size_t total_new_len = mutableString->len + appendString->len + 1;
-    char *newp = realloc(mutableString->buf, total_new_len);
+    EVIndex totalNewLength = mutableString->len + appendString->len + 1;
+    char *newp = realloc(mutableString->buf, totalNewLength);
     if(newp == NULL)
     {
         return false;
@@ -839,8 +839,8 @@ Boolean EVStringAppendString(EVMutableStringRef mutableStringRef,
     mutableString->buf = newp;
 
     memcpy(mutableString->buf + mutableString->len, appendString->buf, appendString->len);
-    mutableString->buf[total_new_len - 1] = '\0';
-    mutableString->len = total_new_len - 1;
+    mutableString->buf[totalNewLength - 1] = '\0';
+    mutableString->len = totalNewLength - 1;
 
     return true;
 }
