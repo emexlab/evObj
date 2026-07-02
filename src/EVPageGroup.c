@@ -196,6 +196,12 @@ bool EVPageGroupMerge(EVPageGroupRef groupRef)
         return false;
     }
 
+    uint64_t count = EVArrayGetCount(group->pagesArrayRef);
+    if(count <= 0)
+    {
+        return true;
+    }
+
     /* allocating new huge page */
     EVAllocatorRef allocatorRef = EVGetAllocator(groupRef);
     size_t total_len = EVPageGroupGetSize(groupRef);

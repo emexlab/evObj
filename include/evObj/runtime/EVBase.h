@@ -34,7 +34,31 @@
 #define kEVNotATypeID   ((uint64_t)0)
 #define EV_MAX_CLASSES  1024
 
-typedef uint64_t EVTypeID;
+/* normal types */
+typedef unsigned long EVOptionFlags;
+typedef unsigned long EVHashCode;
+typedef long EVIndex;
+typedef struct {
+    EVIndex location;
+    EVIndex length;
+} EVRange;
+typedef unsigned char Boolean;
+typedef unsigned char UInt8;
+typedef signed char SInt8;
+typedef unsigned short UInt16;
+typedef signed short SInt16;
+typedef unsigned int UInt32;
+typedef signed int SInt32;
+typedef uint64_t UInt64;
+typedef int64_t SInt64;
+typedef float Float32;
+typedef double Float64;
+typedef double EVTimeInterval;
+typedef EVTimeInterval EVAbsoluteTime;
+/* no OSStatus??? this is modern, aint macintosh carbon era shit, my water aint carbonised */
+
+/* special types */
+typedef unsigned long EVTypeID;
 typedef void * EVObjectRef;  /* so the compiler shuts up */
 typedef struct EVAllocator EVAllocator;
 typedef void * EVAllocatorRef;
