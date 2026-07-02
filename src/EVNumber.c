@@ -62,8 +62,8 @@ static int64_t __EVNumberGetSInt64Value(EVNumber number)
     }
 }
 
-static bool __EVNumberEqual(EVNumberRef ref1,
-                            EVNumberRef ref2)
+static Boolean __EVNumberEqual(EVNumberRef ref1,
+                               EVNumberRef ref2)
 {
     EVNumber a = (EVNumber)ref1;
     EVNumber b = (EVNumber)ref2;

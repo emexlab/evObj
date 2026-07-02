@@ -33,9 +33,9 @@
 
 typedef __EVString EVString;
 
-static bool __EVStringValidateEncoding(kEVStringEncoding encoding,
-                                       const char *buf,
-                                       size_t len)
+static Boolean __EVStringValidateEncoding(kEVStringEncoding encoding,
+                                          const char *buf,
+                                          size_t len)
 {
     switch(encoding)
     {
@@ -125,8 +125,8 @@ static void __EVStringDeinit(EVStringRef stringRef)
     }
 }
 
-static bool __EVStringEqual(EVStringRef stringRef1,
-                            EVStringRef stringRef2)
+static Boolean __EVStringEqual(EVStringRef stringRef1,
+                               EVStringRef stringRef2)
 {
     EVString string1 = (EVString)stringRef1;
     EVString string2 = (EVString)stringRef2;

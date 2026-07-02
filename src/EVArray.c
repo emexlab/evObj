@@ -92,8 +92,8 @@ static void __EVArrayClassDeinit(EVArrayRef arrayRef)
     free(array->items);
 }
 
-static bool __EVArrayClassEqual(EVArrayRef arrayRef1,
-                                EVArrayRef arrayRef2)
+static Boolean __EVArrayClassEqual(EVArrayRef arrayRef1,
+                                   EVArrayRef arrayRef2)
 {
     EVArray array1 = (EVArray)arrayRef1;
     EVArray array2 = (EVArray)arrayRef2;

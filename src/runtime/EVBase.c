@@ -37,8 +37,8 @@ EVTypeID EVGetTypeID(EVObjectRef ref)
     return ((EVObject*)ref)->typeID;
 }
 
-bool EVEqual(EVObjectRef ref1,
-             EVObjectRef ref2)
+Boolean EVEqual(EVObjectRef ref1,
+                EVObjectRef ref2)
 {
     if(ref1 == ref2)
     {

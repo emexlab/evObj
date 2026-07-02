@@ -68,7 +68,7 @@ typedef EVObjectRef EVStringRef;
 typedef void (*evobject_init_handler_t)(EVObjectRef ref);
 typedef void (*evobject_deinit_handler_t)(EVObjectRef ref);
 typedef EVObjectRef (*evobject_copy_handler_t)(EVObjectRef ref);
-typedef bool (*evobject_equal_handler_t)(EVObjectRef ref1, EVObjectRef ref2);
+typedef Boolean (*evobject_equal_handler_t)(EVObjectRef ref1, EVObjectRef ref2);
 typedef EVStringRef (*evobject_copy_description_handler_t)(EVObjectRef ref);
 
 typedef EVObjectRef (*evallocator_alloc_handler_t)(EVAllocatorRef allocatorRef, EVTypeID typeID, size_t size);
@@ -106,7 +106,7 @@ typedef struct {
     EVAllocator *allocator;
 
     /* set once */
-    bool is_stack_obj;
+    Boolean is_stack_obj;
 
     /*
      * reference count of an object if
@@ -117,7 +117,7 @@ typedef struct {
 } EVObject;
 
 EVTypeID EVGetTypeID(EVObjectRef ref);
-bool EVEqual(EVObjectRef ref1, EVObjectRef ref2);
+Boolean EVEqual(EVObjectRef ref1, EVObjectRef ref2);
 
 EVObjectRef EVRetain(EVObjectRef ref);
 void EVRelease(EVObjectRef ref);
