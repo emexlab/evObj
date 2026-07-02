@@ -55,12 +55,12 @@ EFMutableArrayRef EFArrayCreateMutable(EFAllocatorRef allocatorRef, EFArrayCallb
 EFMutableArrayRef EFArrayCreateMutableCopy(EFAllocator *allocator, EFArrayRef arrayRef);
 EFArrayRef EFArrayCreateCopy(EFAllocator *allocator, EFArrayRef arrayRef);
 
-uint64_t EFArrayGetCount(EFArrayRef arrayRef);
-void *EFArrayGetValueAtIndex(EFArrayRef arrayRef, uint64_t index);
+EFIndex EFArrayGetCount(EFArrayRef arrayRef);
+void *EFArrayGetValueAtIndex(EFArrayRef arrayRef, EFIndex index);
 
-bool EFArrayAppendValue(EFArrayRef arrayRef, void *value);
+Boolean EFArrayAppendValue(EFArrayRef arrayRef, void *value);
 
-bool EFArrayInsertValueAtIndex(EFArrayRef arrayRef, uint64_t index, void *ptr);
-void EFArrayRemoveValueAtIndex(EFArrayRef arrayRef, uint64_t index);
+Boolean EFArrayInsertValueAtIndex(EFArrayRef arrayRef, EFIndex index, void *ptr);
+void EFArrayRemoveValueAtIndex(EFArrayRef arrayRef, EFIndex index);
 
 #endif /* EFARRAY_H */
