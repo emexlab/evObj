@@ -127,7 +127,7 @@ static EFStringRef __EFArrayCopyDescription(EFArrayRef arrayRef)
     EFAllocatorRef allocatorRef = EFGetAllocator(arrayRef);
     EFClass *cls = EFClassGetByID(array->header.typeID);
 
-    EFStringRef baseStringRef = EFStringCreateWithFormat(allocatorRef, EF_STR("<%s %p>{count = %llu, items = {"), cls->name, arrayRef, array->items_cnt);
+    EFStringRef baseStringRef = EFStringCreateWithFormat(allocatorRef, EF_STR("<%s %p>{count = %ld, items = {"), cls->name, arrayRef, array->items_cnt);
     if(baseStringRef == NULL)
     {
         return NULL;

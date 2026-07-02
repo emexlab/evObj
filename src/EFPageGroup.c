@@ -46,7 +46,7 @@ static EFStringRef __EFPageGroupCopyDescription(EFPageGroupRef groupRef)
     EFPageGroup group = (EFPageGroup)groupRef;
     EFAllocatorRef allocatorRef = EFGetAllocator(groupRef);
     EFClass *cls = EFClassGetByID(group->header.typeID);
-    return EFStringCreateWithFormat(allocatorRef, EF_STR("<%s %p>{pagesArray = %@, len = %zu}"), cls->name, groupRef, group->pagesArrayRef, EFPageGroupGetSize(groupRef));
+    return EFStringCreateWithFormat(allocatorRef, EF_STR("<%s %p>{pagesArray = %@, len = %zu}"), cls->name, groupRef, group->pagesArrayRef, EFPageGroupGetLength(groupRef));
 }
 
 static EFClass EFPageGroupClass = {
@@ -149,7 +149,7 @@ EFArrayRef EFPageGroupCopyPages(EFAllocatorRef allocatorRef,
     return EFArrayCreateCopy(allocatorRef, group->pagesArrayRef);
 }
 
-size_t EFPageGroupGetSize(EFPageGroupRef groupRef)
+EFIndex EFPageGroupGetLength(EFPageGroupRef groupRef)
 {
     EFPageGroup group = (EFPageGroup)groupRef;
     if(group == NULL)
@@ -157,18 +157,18 @@ size_t EFPageGroupGetSize(EFPageGroupRef groupRef)
         return 0;
     }
 
-    size_t size = 0;
-    uint64_t count = EFArrayGetCount(group->pagesArrayRef);
-    for(uint64_t i = 0; i < count; i++)
+    EFIndex size = 0;
+    EFIndex count = EFArrayGetCount(group->pagesArrayRef);
+    for(EFIndex i = 0; i < count; i++)
     {
         EFPageRef pageRef = EFArrayGetValueAtIndex(group->pagesArrayRef, i);
-        size += EFPageGetSize(pageRef);
+        size += EFPageGetLength(pageRef);
     }
 
     return size;
 }
 
-bool EFPageGroupExtend(EFPageGroupRef groupRef)
+Boolean EFPageGroupExtend(EFPageGroupRef groupRef)
 {
     EFPageGroup group = (EFPageGroup)groupRef;
     if(group == NULL)
@@ -188,7 +188,7 @@ bool EFPageGroupExtend(EFPageGroupRef groupRef)
     return success;
 }
 
-bool EFPageGroupMerge(EFPageGroupRef groupRef)
+Boolean EFPageGroupMerge(EFPageGroupRef groupRef)
 {
     EFPageGroup group = (EFPageGroup)groupRef;
     if(group == NULL)
@@ -204,7 +204,7 @@ bool EFPageGroupMerge(EFPageGroupRef groupRef)
 
     /* allocating new huge page */
     EFAllocatorRef allocatorRef = EFGetAllocator(groupRef);
-    size_t total_len = EFPageGroupGetSize(groupRef);
+    size_t total_len = EFPageGroupGetLength(groupRef);
     EFPageRef hugePageRef = EFPageCreateWithOptions(allocatorRef, NULL, total_len, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if(hugePageRef == NULL)
     {
@@ -225,7 +225,7 @@ bool EFPageGroupMerge(EFPageGroupRef groupRef)
     {
         EFPageRef pageRef = EFArrayGetValueAtIndex(group->pagesArrayRef, i);
         void *pagePtr = EFPageGetPtr(pageRef);
-        size_t pageSize = EFPageGetSize(pageRef);
+        size_t pageSize = EFPageGetLength(pageRef);
 
         memcpy(hugePagePtr + loc, pagePtr, pageSize);
         loc += pageSize;
@@ -254,11 +254,11 @@ typedef enum {
     kVPXferWrite
 } kVPXfer;
 
-static size_t __EFPageGroupXfer(EFPageGroup groupRef,
-                                size_t off,
-                                uint8_t *b,
-                                size_t len,
-                                kVPXfer xfer)
+static EFIndex __EFPageGroupXfer(EFPageGroup groupRef,
+                                 EFIndex off,
+                                 uint8_t *b,
+                                 EFIndex len,
+                                 kVPXfer xfer)
 {
     EFPageGroup group = (EFPageGroup)groupRef;
     if(group == NULL)
@@ -266,7 +266,12 @@ static size_t __EFPageGroupXfer(EFPageGroup groupRef,
         return 0;
     }
 
-    size_t total = EFPageGroupGetSize(groupRef);
+    if(off < 0 || len < 0)
+    {
+        return 0;
+    }
+
+    EFIndex total = EFPageGroupGetLength(groupRef);
 
     /* avoiding overflow */
     if(off >= total)
@@ -279,28 +284,29 @@ static size_t __EFPageGroupXfer(EFPageGroup groupRef,
     }
 
     /* walk to the page that contains the starting offset */
-    size_t base = 0;
-    uint64_t count = EFArrayGetCount(group->pagesArrayRef);
-    uint64_t index = 0;
+    EFIndex base = 0;
+    EFIndex count = EFArrayGetCount(group->pagesArrayRef);
+    EFIndex index = 0;
     EFPageRef pageRef = NULL;
     for(; index < count; index++)
     {
         pageRef = EFArrayGetValueAtIndex(group->pagesArrayRef, index);
-        size_t pageSize = EFPageGetSize(pageRef);
+        EFIndex pageSize = EFPageGetLength(pageRef);
         if(!(base + pageSize <= off))
         {
             break;
         }
+        base += pageSize;
     }
 
-    size_t done = 0;
+    EFIndex done = 0;
     while(len > 0 && index < count)
     {
         uint8_t *pagePtr = EFPageGetPtr(pageRef);
-        size_t pageSize = EFPageGetSize(pageRef);
-        size_t pageOff = off - base;
-        size_t avail = pageSize - pageOff;
-        size_t n = (len < avail) ? len : avail;
+        EFIndex pageSize = EFPageGetLength(pageRef);
+        EFIndex pageOff = off - base;
+        EFIndex avail = pageSize - pageOff;
+        EFIndex n = (len < avail) ? len : avail;
 
         if(xfer == kVPXferWrite)
         {
@@ -327,18 +333,18 @@ static size_t __EFPageGroupXfer(EFPageGroup groupRef,
     return done;
 }
 
-size_t EFPageGroupWrite(EFPageGroupRef groupRef,
-                        size_t off,
-                        const uint8_t *b,
-                        size_t len)
+EFIndex EFPageGroupWrite(EFPageGroupRef groupRef,
+                         EFIndex off,
+                         const uint8_t *b,
+                         EFIndex len)
 {
     return __EFPageGroupXfer(groupRef, off, (uint8_t*)b, len, kVPXferWrite);
 }
 
-size_t EFPageGroupRead(EFPageGroupRef groupRef,
-                       size_t off,
-                       uint8_t *b,
-                       size_t len)
+EFIndex EFPageGroupRead(EFPageGroupRef groupRef,
+                        EFIndex off,
+                        uint8_t *b,
+                        EFIndex len)
 {
     return __EFPageGroupXfer(groupRef, off, b, len, kVPXferRead);
 }

@@ -43,11 +43,11 @@ EFPageGroupRef EFPageGroupCreateWithPages(EFAllocatorRef allocatorRef, EFArrayRe
 
 EFArrayRef EFPageGroupCopyPages(EFAllocatorRef allocatorRef, EFPageGroupRef groupRef);
 
-size_t EFPageGroupGetSize(EFPageGroupRef groupRef);
-bool EFPageGroupExtend(EFPageGroupRef groupRef);
-bool EFPageGroupMerge(EFPageGroupRef groupRef);
+EFIndex EFPageGroupGetLength(EFPageGroupRef groupRef);
+Boolean EFPageGroupExtend(EFPageGroupRef groupRef);
+Boolean EFPageGroupMerge(EFPageGroupRef groupRef);
 
-size_t EFPageGroupWrite(EFPageGroupRef groupRef, size_t off, const uint8_t *b, size_t len);
-size_t EFPageGroupRead(EFPageGroupRef groupRef, size_t off, uint8_t *b, size_t len);
+EFIndex EFPageGroupWrite(EFPageGroupRef groupRef, EFIndex off, const uint8_t *b, EFIndex len);
+EFIndex EFPageGroupRead(EFPageGroupRef groupRef, EFIndex off, uint8_t *b, EFIndex len);
 
 #endif /* EFPAGE_GROUP_H */
