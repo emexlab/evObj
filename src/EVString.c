@@ -772,7 +772,6 @@ static Boolean __EVIsWhitespace(char c)
     return c == ' '  || c == '\t' || c == '\n' || c == '\r' || c == '\v' || c == '\f';
 }
 
-
 Boolean EVStringTrimWhitespace(EVMutableStringRef mutableStringRef)
 {
     EVString mutableString = (EVString)mutableStringRef;
@@ -817,13 +816,12 @@ Boolean EVStringAppendString(EVMutableStringRef mutableStringRef,
 {
     EVString mutableString = (EVString)mutableStringRef;
     EVString appendString = (EVString)stringRef;
-    if(mutableString == NULL || !mutableString->is_mutable ||
-       appendString == NULL)
+    if(mutableString == NULL || !mutableString->is_mutable || appendString == NULL) /* string must be mutable to be compatible with operations like appending */
     {
         return false;
     }
 
-    /* append string must comply to the encoding of the other string */
+    /* append string must comply to the encoding of the mutable string */
     if(!__EVStringValidateEncoding(mutableString->encoding, appendString->buf, appendString->len))
     {
         return false;
