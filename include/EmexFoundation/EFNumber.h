@@ -29,14 +29,14 @@
 #include <stdbool.h>
 #include <EmexFoundation/runtime/EFBase.h>
 
-typedef enum: uint8_t {
+typedef enum: UInt8 {
     kEFNumberTypeSInt8,
     kEFNumberTypeSInt16,
     kEFNumberTypeSInt32,
     kEFNumberTypeSInt64,
 } kEFNumberType;
 
-typedef enum: uint8_t {
+typedef enum: UInt8 {
     kEFNumberComparisonResultLessThan,
     kEFNumberComparisonResultEqualTo,
     kEFNumberComparisonResultGreaterThan,

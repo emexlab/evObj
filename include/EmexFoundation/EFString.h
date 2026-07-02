@@ -31,7 +31,7 @@
 #include <EmexFoundation/runtime/EFBase.h>
 #include <EmexFoundation/EFArray.h>
 
-typedef enum: uint8_t {
+typedef enum: UInt8 {
     kEFStringEncodingUTF7,
     kEFStringEncodingASCII = kEFStringEncodingUTF7,
     kEFStringEncodingUTF8,
