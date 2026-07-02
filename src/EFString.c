@@ -119,7 +119,7 @@ static Boolean __EFStringValidateEncoding(kEFStringEncoding encoding,
 static void __EFStringDeinit(EFStringRef stringRef)
 {
     EFString string = (EFString)stringRef;
-    if(string->is_mutable)
+    if(string->isMutable)
     {
         free(string->buffer);
     }
@@ -184,8 +184,8 @@ static inline EFStringRef __EFStringCreate(EFAllocatorRef allocatorRef,
                                            const UInt8 *buffer,
                                            size_t length,
                                            kEFStringEncoding encoding,
-                                           Boolean is_inlined,
-                                           Boolean is_mutable)
+                                           Boolean isInlined,
+                                           Boolean isMutable)
 {
     if(buffer == NULL)
     {
@@ -198,19 +198,19 @@ static inline EFStringRef __EFStringCreate(EFAllocatorRef allocatorRef,
         return NULL;
     }
 
-    EFString string = EFObjectAlloc(allocatorRef, EFStringGetTypeID(), sizeof(struct __EFString) + (is_inlined ? length + 1 : 0));
+    EFString string = EFObjectAlloc(allocatorRef, EFStringGetTypeID(), sizeof(struct __EFString) + (isInlined ? length + 1 : 0));
     if(string == NULL)
     {
         return NULL;
     }
 
-    if(is_mutable)
+    if(isMutable)
     {
         string->buffer = malloc(length + 1);
-        is_inlined = false; /* must be false */
+        isInlined = false; /* must be false */
         goto needs_copy;    /* skips past the string->buffer pointer assignment of a inlined string */
     }
-    else if(is_inlined)
+    else if(isInlined)
     {
         string->buffer = (char*)((const char*)string + sizeof(struct __EFString));
     needs_copy:
@@ -225,8 +225,8 @@ static inline EFStringRef __EFStringCreate(EFAllocatorRef allocatorRef,
     /* always assigned with the same values */
     string->length = length;
     string->encoding = encoding;
-    string->is_inlined = !is_mutable && is_inlined; /* is_inlined is only possible when is_mutable is not enabled */
-    string->is_mutable = is_mutable;
+    string->isInlined = !isMutable && isInlined; /* isInlined is only possible when isMutable is not enabled */
+    string->isMutable = isMutable;
 
     return (EFStringRef)string;
 }
@@ -234,7 +234,7 @@ static inline EFStringRef __EFStringCreate(EFAllocatorRef allocatorRef,
 static inline EFStringRef __EFStringCreateWithCString(EFAllocatorRef allocatorRef,
                                                       const char *str,
                                                       kEFStringEncoding encoding,
-                                                      Boolean is_inlined)
+                                                      Boolean isInlined)
 {
     if(str == NULL)
     {
@@ -242,12 +242,12 @@ static inline EFStringRef __EFStringCreateWithCString(EFAllocatorRef allocatorRe
     }
 
     size_t length = strlen(str);
-    return __EFStringCreate(allocatorRef, (const UInt8*)str, length, encoding, is_inlined, false);
+    return __EFStringCreate(allocatorRef, (const UInt8*)str, length, encoding, isInlined, false);
 }
 
 static inline EFStringRef __EFStringCreateCopy(EFAllocatorRef allocatorRef,
                                                EFStringRef stringRef,
-                                               Boolean is_mutable)
+                                               Boolean isMutable)
 {
     EFString string = (EFString)stringRef;
     if(string == NULL)
@@ -261,7 +261,7 @@ static inline EFStringRef __EFStringCreateCopy(EFAllocatorRef allocatorRef,
         allocatorRef = EFGetAllocator(stringRef);
     }
 
-    return __EFStringCreate(allocatorRef, (const UInt8*)string->buffer, string->length, string->encoding, string->is_inlined, is_mutable);
+    return __EFStringCreate(allocatorRef, (const UInt8*)string->buffer, string->length, string->encoding, string->isInlined, isMutable);
 }
 
 EFStringRef EFStringCreateWithCBuffer(EFAllocatorRef allocatorRef,
@@ -775,7 +775,7 @@ static Boolean __EFIsWhitespace(char c)
 Boolean EFStringTrimWhitespace(EFMutableStringRef mutableStringRef)
 {
     EFString mutableString = (EFString)mutableStringRef;
-    if(mutableString == NULL || !mutableString->is_mutable)
+    if(mutableString == NULL || !mutableString->isMutable)
     {
         return false;
     }
@@ -816,7 +816,7 @@ Boolean EFStringAppendString(EFMutableStringRef mutableStringRef,
 {
     EFString mutableString = (EFString)mutableStringRef;
     EFString appendString = (EFString)stringRef;
-    if(mutableString == NULL || !mutableString->is_mutable || appendString == NULL) /* string must be mutable to be compatible with operations like appending */
+    if(mutableString == NULL || !mutableString->isMutable || appendString == NULL) /* string must be mutable to be compatible with operations like appending */
     {
         return false;
     }

@@ -30,8 +30,8 @@
 
 typedef struct EFData {
     EFObject header;
-    Boolean is_mutable;
-    Boolean is_inlined;    /* meaning the object has the buffer in it self */
+    Boolean isMutable;
+    Boolean isInlined;    /* meaning the object has the buffer in it self */
     UInt8 *buffer;       /* it is neither inlined nor undeallocatable if mutable */
     size_t length;
 } *EFData;
@@ -41,15 +41,15 @@ static void __EFDataInit(EFDataRef dataRef)
     EFData data = (EFData)dataRef;
 
     /* we first automatically expect it to be at the inline */
-    data->is_mutable = false;
-    data->is_inlined = true;
+    data->isMutable = false;
+    data->isInlined = true;
     data->buffer = (UInt8*)((const char*)data + sizeof(struct EFData));
 }
 
 static void __EFDataDeinit(EFDataRef dataRef)
 {
     EFData data = (EFData)dataRef;
-    if(data->is_mutable)
+    if(data->isMutable)
     {
         free(data->buffer);
     }
@@ -102,7 +102,7 @@ EFDataRef EFDataCreateWithCBufferNoCopy(EFAllocatorRef allocatorRef,
     }
 
     EFData data = (EFData)EFObjectAlloc(allocatorRef, EFDataGetTypeID(), sizeof(struct EFData));
-    data->is_inlined = false;
+    data->isInlined = false;
     data->buffer = (UInt8*)bytes;
     data->length = length;
 

@@ -43,8 +43,8 @@ typedef EFObjectRef EFMutableStringRef;
 typedef struct __EFString {
     EFObject header;
     kEFStringEncoding encoding;
-    Boolean is_mutable;
-    Boolean is_inlined; /* meaning the buffer pointer points to after the string object */
+    Boolean isMutable;
+    Boolean isInlined; /* meaning the buffer pointer points to after the string object */
     char *buffer;          /* it is neither inlined nor undeallocatable if mutable */
     EFIndex length;
 } *__EFString;
@@ -54,8 +54,8 @@ typedef struct __EFString {
 #define EF_STR_ENC(cStr, enc) (__extension__ ({ \
     static struct __EFString _evk = { \
         .encoding = (enc), \
-        .is_mutable = false, \
-        .is_inlined = false, \
+        .isMutable = false, \
+        .isInlined = false, \
         .buffer = (char *)("" cStr ""), \
         .length = (EFIndex)(sizeof("" cStr "") - 1), \
         .header.is_stack_obj = true, \
