@@ -15,39 +15,39 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EFENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
 
-#ifndef EVPAGE_GROUP_H
-#define EVPAGE_GROUP_H
+#ifndef EFPAGE_GROUP_H
+#define EFPAGE_GROUP_H
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include <evObj/EVPage.h>
-#include <evObj/EVArray.h>
-#include <evObj/runtime/EVBase.h>
+#include <EmexFoundation/EFPage.h>
+#include <EmexFoundation/EFArray.h>
+#include <EmexFoundation/runtime/EFBase.h>
 
-typedef EVObjectRef EVPageGroupRef;
+typedef EFObjectRef EFPageGroupRef;
 
-EVTypeID EVPageGroupGetTypeID(void);
+EFTypeID EFPageGroupGetTypeID(void);
 
-EVPageGroupRef EVPageGroupCreate(EVAllocatorRef allocatorRef);
-EVPageGroupRef EVPageGroupCreateWithPages(EVAllocatorRef allocatorRef, EVArrayRef pagesArrayRef);
+EFPageGroupRef EFPageGroupCreate(EFAllocatorRef allocatorRef);
+EFPageGroupRef EFPageGroupCreateWithPages(EFAllocatorRef allocatorRef, EFArrayRef pagesArrayRef);
 
-EVArrayRef EVPageGroupCopyPages(EVAllocatorRef allocatorRef, EVPageGroupRef groupRef);
+EFArrayRef EFPageGroupCopyPages(EFAllocatorRef allocatorRef, EFPageGroupRef groupRef);
 
-size_t EVPageGroupGetSize(EVPageGroupRef groupRef);
-bool EVPageGroupExtend(EVPageGroupRef groupRef);
-bool EVPageGroupMerge(EVPageGroupRef groupRef);
+size_t EFPageGroupGetSize(EFPageGroupRef groupRef);
+bool EFPageGroupExtend(EFPageGroupRef groupRef);
+bool EFPageGroupMerge(EFPageGroupRef groupRef);
 
-size_t EVPageGroupWrite(EVPageGroupRef groupRef, size_t off, const uint8_t *b, size_t len);
-size_t EVPageGroupRead(EVPageGroupRef groupRef, size_t off, uint8_t *b, size_t len);
+size_t EFPageGroupWrite(EFPageGroupRef groupRef, size_t off, const uint8_t *b, size_t len);
+size_t EFPageGroupRead(EFPageGroupRef groupRef, size_t off, uint8_t *b, size_t len);
 
-#endif /* EVPAGE_GROUP_H */
+#endif /* EFPAGE_GROUP_H */

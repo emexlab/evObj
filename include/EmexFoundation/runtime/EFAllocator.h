@@ -15,33 +15,21 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EFENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
 
-#ifndef EVPAGE_H
-#define EVPAGE_H
+#ifndef EFALLOCATOR_H
+#define EFALLOCATOR_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <stddef.h>
-#include <evObj/runtime/EVBase.h>
+#include <EmexFoundation/runtime/EFBase.h>
 
-typedef EVObjectRef EVPageRef;
+extern EFAllocatorRef kEFAllocatorDefault;
 
-size_t __EVPageGetPageSize(void);
+EFObjectRef EFObjectAlloc(EFAllocatorRef allocatorRef, EFTypeID typeID, size_t size);
+void EFObjectDealloc(EFObjectRef ref);
 
-EVTypeID EVPageGetTypeID(void);
-
-EVPageRef EVPageCreate(EVAllocatorRef allocatorRef);
-EVPageRef EVPageCreateWithOptions(EVAllocatorRef allocatorRef, void *addr, size_t len, int prot, int flags, int fd, off_t offset);
-
-size_t EVPageGetSize(EVPageRef pageRef);
-void *EVPageGetPtr(EVPageRef pageRef);
-
-#endif /* EVPAGE_H */
+#endif /* EFALLOCATOR_H */

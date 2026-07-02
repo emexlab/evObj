@@ -15,7 +15,7 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EFENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
@@ -25,20 +25,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <evObj/runtime/EVBase.h>
-#include <evObj/runtime/EVAllocator.h>
-#include <evObj/EVString.h>
+#include <EmexFoundation/runtime/EFBase.h>
+#include <EmexFoundation/runtime/EFAllocator.h>
+#include <EmexFoundation/EFString.h>
 
-static _Atomic(EVClass *) ev_class_table[EV_MAX_CLASSES];
+static _Atomic(EFClass *) ev_class_table[EF_MAX_CLASSES];
 static _Atomic(uint64_t) ev_class_next = 1;
 
-EVTypeID EVGetTypeID(EVObjectRef ref)
+EFTypeID EFGetTypeID(EFObjectRef ref)
 {
-    return ((EVObject*)ref)->typeID;
+    return ((EFObject*)ref)->typeID;
 }
 
-Boolean EVEqual(EVObjectRef ref1,
-                EVObjectRef ref2)
+Boolean EFEqual(EFObjectRef ref1,
+                EFObjectRef ref2)
 {
     if(ref1 == ref2)
     {
@@ -50,13 +50,13 @@ Boolean EVEqual(EVObjectRef ref1,
     }
 
     /* types must match */
-    EVTypeID typeID = EVGetTypeID(ref1);
-    if(typeID != EVGetTypeID(ref2))
+    EFTypeID typeID = EFGetTypeID(ref1);
+    if(typeID != EFGetTypeID(ref2))
     {
         return false;
     }
 
-    EVClass *class = EVClassGetByID(typeID);
+    EFClass *class = EFClassGetByID(typeID);
     if(class->equal != NULL)
     {
         return class->equal(ref1, ref2);
@@ -66,9 +66,9 @@ Boolean EVEqual(EVObjectRef ref1,
     return false;
 }
 
-EVObjectRef EVRetain(EVObjectRef ref)
+EFObjectRef EFRetain(EFObjectRef ref)
 {
-    EVObject *object = (EVObject*)ref;
+    EFObject *object = (EFObject*)ref;
     assert(object != NULL);
     if(object->is_stack_obj)
     {
@@ -78,9 +78,9 @@ EVObjectRef EVRetain(EVObjectRef ref)
     return ref;
 }
 
-void EVRelease(EVObjectRef ref)
+void EFRelease(EFObjectRef ref)
 {
-    EVObject *object = (EVObject*)ref;
+    EFObject *object = (EFObject*)ref;
     assert(object != NULL);
     if(object->is_stack_obj)
     {
@@ -88,40 +88,40 @@ void EVRelease(EVObjectRef ref)
     }
 
     /* releasing and trying to get the old reference count */
-    EVIndex old = atomic_fetch_sub_explicit(&object->refcount, 1, memory_order_release);
+    EFIndex old = atomic_fetch_sub_explicit(&object->refcount, 1, memory_order_release);
     if(old == 1)
     {
         atomic_thread_fence(memory_order_acquire);
         /* trigger handler */
-        EVClass *class = EVClassGetByID(object->typeID);
+        EFClass *class = EFClassGetByID(object->typeID);
         assert(class != NULL);
         if(class->deinit != NULL)
         {
             class->deinit(ref);
         }
-        EVObjectDealloc(object);
+        EFObjectDealloc(object);
     }
     else if(old <= 0)
     {
-        fprintf(stderr, "EVRelease: fatal error occured, reference underflow\n");
+        fprintf(stderr, "EFRelease: fatal error occured, reference underflow\n");
         exit(1);
     }
 }
 
-EVIndex EVGetRetainCount(EVObjectRef ref)
+EFIndex EFGetRetainCount(EFObjectRef ref)
 {
-    EVObject *object = (EVObject*)ref;
+    EFObject *object = (EFObject*)ref;
     assert(object != NULL);
     return atomic_load(&object->refcount);
 }
 
-EVTypeID EVClassRegister(EVClass *cls)
+EFTypeID EFClassRegister(EFClass *cls)
 {
     assert(cls != NULL);
     uint64_t id = atomic_fetch_add_explicit(&ev_class_next, 1, memory_order_relaxed);
-    if(id >= EV_MAX_CLASSES)
+    if(id >= EF_MAX_CLASSES)
     {
-        return kEVNotATypeID;
+        return kEFNotATypeID;
     }
 
     cls->typeID = id;
@@ -129,70 +129,70 @@ EVTypeID EVClassRegister(EVClass *cls)
     return id;
 }
 
-EVClass *EVClassGetByID(EVTypeID id)
+EFClass *EFClassGetByID(EFTypeID id)
 {
-    if(id == kEVNotATypeID || id >= EV_MAX_CLASSES)
+    if(id == kEFNotATypeID || id >= EF_MAX_CLASSES)
     {
         return NULL;
     }
     return atomic_load_explicit(&ev_class_table[id], memory_order_acquire);
 }
 
-EVAllocatorRef EVGetAllocator(EVObjectRef ref)
+EFAllocatorRef EFGetAllocator(EFObjectRef ref)
 {
-    EVObject *object = (EVObject*)ref;
+    EFObject *object = (EFObject*)ref;
     assert(object != NULL);
     return object->allocator;
 }
 
-EVStringRef EVCopyDescription(EVObjectRef ref)
+EFStringRef EFCopyDescription(EFObjectRef ref)
 {
-    EVObject *object = (EVObject*)ref;
+    EFObject *object = (EFObject*)ref;
     if(object == NULL)
     {
-        return EV_STR("<nil>");
+        return EF_STR("<nil>");
     }
 
-    EVClass *cls = EVClassGetByID(object->typeID);
+    EFClass *cls = EFClassGetByID(object->typeID);
     if(cls == NULL)
     {
-        return EV_STR("<nil>");
+        return EF_STR("<nil>");
     }
 
     if(cls->copyDescription)
     {
-        EVStringRef descriptionRef = cls->copyDescription(ref);
+        EFStringRef descriptionRef = cls->copyDescription(ref);
         if(descriptionRef != NULL)
         {
             return descriptionRef;
         }
     }
 
-    EVStringRef descriptionFallbackRef = EVStringCreateWithFormat(object->allocator, EV_STR("<%s %p>"), cls->name, ref);
+    EFStringRef descriptionFallbackRef = EFStringCreateWithFormat(object->allocator, EF_STR("<%s %p>"), cls->name, ref);
     if(descriptionFallbackRef == NULL)
     {
-        return EV_STR("<nil>");
+        return EF_STR("<nil>");
     }
 
     return descriptionFallbackRef;
 }
 
-void EVLog(EVStringRef formatStringRef, ...)
+void EFLog(EFStringRef formatStringRef, ...)
 {
     va_list arguments;
     va_start(arguments, formatStringRef);
-    EVStringRef resultRef = EVStringCreateWithFormatAndArguments(NULL, formatStringRef, arguments);
+    EFStringRef resultRef = EFStringCreateWithFormatAndArguments(NULL, formatStringRef, arguments);
     va_end(arguments);
     if(resultRef == NULL)
     {
         return;
     }
 
-    const char *resultCptr = EVStringGetCStringPtr(resultRef, kEVStringEncodingUTF8);
+    const char *resultCptr = EFStringGetCStringPtr(resultRef, kEFStringEncodingUTF8);
     if(resultCptr)
     {
         fprintf(stderr, "%s", resultCptr);
     }
 
-    EVRelease(resultRef);
+    EFRelease(resultRef);
 }

@@ -15,7 +15,7 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EFENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
@@ -24,59 +24,59 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <evObj/EVData.h>
-#include <evObj/runtime/EVBase.h>
-#include <evObj/runtime/EVAllocator.h>
+#include <EmexFoundation/EFData.h>
+#include <EmexFoundation/runtime/EFBase.h>
+#include <EmexFoundation/runtime/EFAllocator.h>
 
-typedef struct EVData {
-    EVObject header;
+typedef struct EFData {
+    EFObject header;
     bool is_mutable;
     bool is_inlined;    /* meaning the object has the buffer in it self */
     uint8_t *buf;       /* it is neither inlined nor undeallocatable if mutable */
     size_t len;
-} *EVData;
+} *EFData;
 
-static void __EVDataInit(EVDataRef dataRef)
+static void __EFDataInit(EFDataRef dataRef)
 {
-    EVData data = (EVData)dataRef;
+    EFData data = (EFData)dataRef;
 
     /* we first automatically expect it to be at the inline */
     data->is_mutable = false;
     data->is_inlined = true;
-    data->buf = (uint8_t*)((const char*)data + sizeof(struct EVData));
+    data->buf = (uint8_t*)((const char*)data + sizeof(struct EFData));
 }
 
-static void __EVDataDeinit(EVDataRef dataRef)
+static void __EFDataDeinit(EFDataRef dataRef)
 {
-    EVData data = (EVData)dataRef;
+    EFData data = (EFData)dataRef;
     if(data->is_mutable)
     {
         free(data->buf);
     }
 }
 
-static EVClass EVDataClass = {
-    .name = "EVData",
-    .typeID = kEVNotATypeID,
-    .init = __EVDataInit,
-    .deinit = __EVDataDeinit,
+static EFClass EFDataClass = {
+    .name = "EFData",
+    .typeID = kEFNotATypeID,
+    .init = __EFDataInit,
+    .deinit = __EFDataDeinit,
     .equal = NULL,
     .copyDescription = NULL,
 };
 
-static void EVDataRegisterClass(void)
+static void EFDataRegisterClass(void)
 {
-    EVClassRegister(&EVDataClass);
+    EFClassRegister(&EFDataClass);
 }
 
-EVTypeID EVDataGetTypeID(void)
+EFTypeID EFDataGetTypeID(void)
 {
     static pthread_once_t once = PTHREAD_ONCE_INIT;
-    pthread_once(&once, EVDataRegisterClass);
-    return EVDataClass.typeID;
+    pthread_once(&once, EFDataRegisterClass);
+    return EFDataClass.typeID;
 }
 
-EVDataRef EVDataCreateWithCBuffer(EVAllocatorRef allocatorRef,
+EFDataRef EFDataCreateWithCBuffer(EFAllocatorRef allocatorRef,
                                   const uint8_t *bytes,
                                   size_t length)
 {
@@ -85,14 +85,14 @@ EVDataRef EVDataCreateWithCBuffer(EVAllocatorRef allocatorRef,
         return NULL;
     }
 
-    EVData data = (EVData)EVObjectAlloc(allocatorRef, EVDataGetTypeID(), sizeof(struct EVData) + length);
+    EFData data = (EFData)EFObjectAlloc(allocatorRef, EFDataGetTypeID(), sizeof(struct EFData) + length);
     memcpy(data->buf, bytes, length);
     data->len = length;
 
-    return (EVDataRef)data;
+    return (EFDataRef)data;
 }
 
-EVDataRef EVDataCreateWithCBufferNoCopy(EVAllocatorRef allocatorRef,
+EFDataRef EFDataCreateWithCBufferNoCopy(EFAllocatorRef allocatorRef,
                                         const uint8_t *bytes,
                                         size_t length)
 {
@@ -101,24 +101,24 @@ EVDataRef EVDataCreateWithCBufferNoCopy(EVAllocatorRef allocatorRef,
         return NULL;
     }
 
-    EVData data = (EVData)EVObjectAlloc(allocatorRef, EVDataGetTypeID(), sizeof(struct EVData));
+    EFData data = (EFData)EFObjectAlloc(allocatorRef, EFDataGetTypeID(), sizeof(struct EFData));
     data->is_inlined = false;
     data->buf = (uint8_t*)bytes;
     data->len = length;
 
-    return (EVDataRef)data;
+    return (EFDataRef)data;
 }
 
-EVMutableDataRef EVDataCreateMutable(EVAllocatorRef allocatorRef,
+EFMutableDataRef EFDataCreateMutable(EFAllocatorRef allocatorRef,
                                      size_t capacity)
 {
     return NULL;
 }
 
-EVDataRef EVDataCreateCopy(EVAllocatorRef allocatorRef,
-                           EVDataRef dataRef)
+EFDataRef EFDataCreateCopy(EFAllocatorRef allocatorRef,
+                           EFDataRef dataRef)
 {
-    EVData data = (EVData)dataRef;
+    EFData data = (EFData)dataRef;
     if(data == NULL)
     {
         return NULL;
@@ -126,13 +126,13 @@ EVDataRef EVDataCreateCopy(EVAllocatorRef allocatorRef,
 
     if(allocatorRef == NULL)
     {
-        allocatorRef = EVGetAllocator(dataRef);
+        allocatorRef = EFGetAllocator(dataRef);
     }
     
-    return EVDataCreateWithCBuffer(allocatorRef, data->buf, data->len);
+    return EFDataCreateWithCBuffer(allocatorRef, data->buf, data->len);
 }
 
-EVMutableDataRef EVDataCreateMutableCopy(EVAllocatorRef allocatorRef, EVDataRef dataRef)
+EFMutableDataRef EFDataCreateMutableCopy(EFAllocatorRef allocatorRef, EFDataRef dataRef)
 {
     return NULL;
 }

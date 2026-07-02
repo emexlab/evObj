@@ -15,43 +15,43 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EFENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
 
-#ifndef EVNUMBER_H
-#define EVNUMBER_H
+#ifndef EFNUMBER_H
+#define EFNUMBER_H
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <evObj/runtime/EVBase.h>
+#include <EmexFoundation/runtime/EFBase.h>
 
 typedef enum: uint8_t {
-    kEVNumberTypeSInt8,
-    kEVNumberTypeSInt16,
-    kEVNumberTypeSInt32,
-    kEVNumberTypeSInt64,
-} kEVNumberType;
+    kEFNumberTypeSInt8,
+    kEFNumberTypeSInt16,
+    kEFNumberTypeSInt32,
+    kEFNumberTypeSInt64,
+} kEFNumberType;
 
 typedef enum: uint8_t {
-    kEVNumberComparisonResultLessThan,
-    kEVNumberComparisonResultEqualTo,
-    kEVNumberComparisonResultGreaterThan,
-} kEVNumberComparisonResult;
+    kEFNumberComparisonResultLessThan,
+    kEFNumberComparisonResultEqualTo,
+    kEFNumberComparisonResultGreaterThan,
+} kEFNumberComparisonResult;
 
-typedef EVObjectRef EVNumberRef;
+typedef EFObjectRef EFNumberRef;
 
-EVTypeID EVNumberGetTypeID(void);
+EFTypeID EFNumberGetTypeID(void);
 
-EVNumberRef EVNumberCreate(EVAllocatorRef allocatorRef, kEVNumberType type, const void *value);
+EFNumberRef EFNumberCreate(EFAllocatorRef allocatorRef, kEFNumberType type, const void *value);
 
-EVIndex EVNumberGetByteSize(EVNumberRef numberRef);
-kEVNumberType EVNumberGetType(EVNumberRef numberRef);
-Boolean EVNumberGetValue(EVNumberRef numberRef, kEVNumberType type, void *value);
+EFIndex EFNumberGetByteSize(EFNumberRef numberRef);
+kEFNumberType EFNumberGetType(EFNumberRef numberRef);
+Boolean EFNumberGetValue(EFNumberRef numberRef, kEFNumberType type, void *value);
 
-kEVNumberComparisonResult EVNumberCompare(EVNumberRef numberRef, EVNumberRef otherNumberRef);
+kEFNumberComparisonResult EFNumberCompare(EFNumberRef numberRef, EFNumberRef otherNumberRef);
 
-#endif /* EVNUMBER_H */
+#endif /* EFNUMBER_H */

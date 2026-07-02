@@ -15,35 +15,35 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EFENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
 
-#include <evObj/runtime/EVBase.h>
-#include <evObj/runtime/EVAllocator.h>
+#include <EmexFoundation/runtime/EFBase.h>
+#include <EmexFoundation/runtime/EFAllocator.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 
-static EVObjectRef __EVAllocatorDefaultAllocate(EVAllocatorRef allocatorRef,
-                                                EVTypeID typeID,
+static EFObjectRef __EFAllocatorDefaultAllocate(EFAllocatorRef allocatorRef,
+                                                EFTypeID typeID,
                                                 size_t size)
 {
-    EVAllocator *allocator = (EVAllocator*)allocatorRef;
+    EFAllocator *allocator = (EFAllocator*)allocatorRef;
 
     /*
      * gotta need the class for the typeid
      * and the init handler.
      */
-    EVClass *class = EVClassGetByID(typeID);
+    EFClass *class = EFClassGetByID(typeID);
 
     /* validating class and passed size */
-    assert(class != NULL && size >= sizeof(EVObject));
+    assert(class != NULL && size >= sizeof(EFObject));
 
-    EVObject *object = calloc(1, size);
+    EFObject *object = calloc(1, size);
     if(object == NULL)
     {
         return NULL;
@@ -59,42 +59,42 @@ static EVObjectRef __EVAllocatorDefaultAllocate(EVAllocatorRef allocatorRef,
         class->init(object);
     }
 
-    return (EVObjectRef)object;
+    return (EFObjectRef)object;
 }
 
-static void __EVAllocatorDefaultDeallocate(EVAllocatorRef allocatorRef,
-                                           EVObjectRef ref)
+static void __EFAllocatorDefaultDeallocate(EFAllocatorRef allocatorRef,
+                                           EFObjectRef ref)
 {
     free(ref);
 }
 
-EVAllocatorRef kEVAllocatorDefault = (EVAllocatorRef)&(EVAllocator){
-    .name = "EVAllocatorDefault",
+EFAllocatorRef kEFAllocatorDefault = (EFAllocatorRef)&(EFAllocator){
+    .name = "EFAllocatorDefault",
     .info = NULL,
 
-    .allocate = __EVAllocatorDefaultAllocate,
-    .deallocate = __EVAllocatorDefaultDeallocate,
+    .allocate = __EFAllocatorDefaultAllocate,
+    .deallocate = __EFAllocatorDefaultDeallocate,
 };
 
-EVObjectRef EVObjectAlloc(EVAllocatorRef allocatorRef,
-                          EVTypeID typeID,
+EFObjectRef EFObjectAlloc(EFAllocatorRef allocatorRef,
+                          EFTypeID typeID,
                           size_t size)
 {
     if(allocatorRef == NULL)
     {
-        allocatorRef = kEVAllocatorDefault;
+        allocatorRef = kEFAllocatorDefault;
     }
 
     /* checking if allocator is correctly configured (it must) */
-    EVAllocator *allocator = (EVAllocator*)allocatorRef;
+    EFAllocator *allocator = (EFAllocator*)allocatorRef;
     assert(allocator->allocate != NULL && allocator->deallocate != NULL);
 
     return allocator->allocate(allocator, typeID, size);
 }
 
-void EVObjectDealloc(EVObjectRef ref)
+void EFObjectDealloc(EFObjectRef ref)
 {
-    EVObject *object = (EVObject*)ref;
+    EFObject *object = (EFObject*)ref;
     assert(object != NULL);
     object->allocator->deallocate(object->allocator, object);
 }

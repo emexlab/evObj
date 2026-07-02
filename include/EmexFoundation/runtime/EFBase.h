@@ -15,15 +15,15 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EFENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
 
-#ifndef EVBASE_H
-#define EVBASE_H
+#ifndef EFBASE_H
+#define EFBASE_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -31,17 +31,17 @@
 #include <stdatomic.h>
 #include <pthread.h>
 
-#define kEVNotATypeID   ((uint64_t)0)
-#define EV_MAX_CLASSES  1024
+#define kEFNotATypeID   ((uint64_t)0)
+#define EF_MAX_CLASSES  1024
 
 /* normal types */
-typedef unsigned long EVOptionFlags;
-typedef unsigned long EVHashCode;
-typedef long EVIndex;
+typedef unsigned long EFOptionFlags;
+typedef unsigned long EFHashCode;
+typedef long EFIndex;
 typedef struct {
-    EVIndex location;
-    EVIndex length;
-} EVRange;
+    EFIndex location;
+    EFIndex length;
+} EFRange;
 typedef unsigned char Boolean;
 typedef unsigned char UInt8;
 typedef signed char SInt8;
@@ -53,40 +53,40 @@ typedef uint64_t UInt64;
 typedef int64_t SInt64;
 typedef float Float32;
 typedef double Float64;
-typedef double EVTimeInterval;
-typedef EVTimeInterval EVAbsoluteTime;
+typedef double EFTimeInterval;
+typedef EFTimeInterval EFAbsoluteTime;
 /* no OSStatus??? this is modern, aint macintosh carbon era shit, my water aint carbonised */
 
 /* special types */
-typedef unsigned long EVTypeID;
-typedef void * EVObjectRef;  /* so the compiler shuts up */
-typedef struct EVAllocator EVAllocator;
-typedef void * EVAllocatorRef;
+typedef unsigned long EFTypeID;
+typedef void * EFObjectRef;  /* so the compiler shuts up */
+typedef struct EFAllocator EFAllocator;
+typedef void * EFAllocatorRef;
 
-typedef EVObjectRef EVStringRef;
+typedef EFObjectRef EFStringRef;
 
-typedef void (*evobject_init_handler_t)(EVObjectRef ref);
-typedef void (*evobject_deinit_handler_t)(EVObjectRef ref);
-typedef EVObjectRef (*evobject_copy_handler_t)(EVObjectRef ref);
-typedef Boolean (*evobject_equal_handler_t)(EVObjectRef ref1, EVObjectRef ref2);
-typedef EVStringRef (*evobject_copy_description_handler_t)(EVObjectRef ref);
+typedef void (*evobject_init_handler_t)(EFObjectRef ref);
+typedef void (*evobject_deinit_handler_t)(EFObjectRef ref);
+typedef EFObjectRef (*evobject_copy_handler_t)(EFObjectRef ref);
+typedef Boolean (*evobject_equal_handler_t)(EFObjectRef ref1, EFObjectRef ref2);
+typedef EFStringRef (*evobject_copy_description_handler_t)(EFObjectRef ref);
 
-typedef EVObjectRef (*evallocator_alloc_handler_t)(EVAllocatorRef allocatorRef, EVTypeID typeID, size_t size);
-typedef void (*evallocator_dealloc_handler_t)(EVAllocatorRef allocatorRef, EVObjectRef ref);
+typedef EFObjectRef (*evallocator_alloc_handler_t)(EFAllocatorRef allocatorRef, EFTypeID typeID, size_t size);
+typedef void (*evallocator_dealloc_handler_t)(EFAllocatorRef allocatorRef, EFObjectRef ref);
 
 typedef struct {
     /* properties  */
     const char *name;
-    EVTypeID typeID;
+    EFTypeID typeID;
 
     /* handlers */
     evobject_init_handler_t init;
     evobject_deinit_handler_t deinit;
     evobject_equal_handler_t equal;
     evobject_copy_description_handler_t copyDescription;
-} EVClass;
+} EFClass;
 
-typedef struct EVAllocator {
+typedef struct EFAllocator {
     /* properties  */
     const char *name;
     void *info; /* a more complex allocator in the future will need this */
@@ -94,17 +94,17 @@ typedef struct EVAllocator {
     /* handlers */
     evallocator_alloc_handler_t allocate;
     evallocator_dealloc_handler_t deallocate;
-} EVAllocator;
+} EFAllocator;
 
 typedef struct {
     /*
      * the typeID of the class of that
      * object, similar to CFRuntime.
      */
-    EVTypeID typeID;
+    EFTypeID typeID;
 
     /* self explainatory */
-    EVAllocator *allocator;
+    EFAllocator *allocator;
 
     /* set once */
     Boolean is_stack_obj;
@@ -114,23 +114,23 @@ typedef struct {
      * it hits zero it will release
      * automatically.
      */
-    _Atomic EVIndex refcount;
-} EVObject;
+    _Atomic EFIndex refcount;
+} EFObject;
 
-EVTypeID EVGetTypeID(EVObjectRef ref);
-Boolean EVEqual(EVObjectRef ref1, EVObjectRef ref2);
+EFTypeID EFGetTypeID(EFObjectRef ref);
+Boolean EFEqual(EFObjectRef ref1, EFObjectRef ref2);
 
-EVObjectRef EVRetain(EVObjectRef ref);
-void EVRelease(EVObjectRef ref);
-EVIndex EVGetRetainCount(EVObjectRef ref);
+EFObjectRef EFRetain(EFObjectRef ref);
+void EFRelease(EFObjectRef ref);
+EFIndex EFGetRetainCount(EFObjectRef ref);
 
-EVTypeID EVClassRegister(EVClass *cls);
-EVClass *EVClassGetByID(EVTypeID id);
+EFTypeID EFClassRegister(EFClass *cls);
+EFClass *EFClassGetByID(EFTypeID id);
 
-EVAllocatorRef EVGetAllocator(EVObjectRef ref);
+EFAllocatorRef EFGetAllocator(EFObjectRef ref);
 
-EVStringRef EVCopyDescription(EVObjectRef ref);
+EFStringRef EFCopyDescription(EFObjectRef ref);
 
-void EVLog(EVStringRef formatStringRef, ...);
+void EFLog(EFStringRef formatStringRef, ...);
 
-#endif /* EVBASE_H */
+#endif /* EFBASE_H */

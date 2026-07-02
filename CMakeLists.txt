@@ -1,31 +1,31 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(evObj
+project(EmexFoundation
     VERSION 1.0.0
     LANGUAGES C
 )
 
 find_package(Threads REQUIRED)
 
-add_library(evObj STATIC
-    src/runtime/EVBase.c
-    src/runtime/EVAllocator.c
+add_library(EmexFoundation STATIC
+    src/runtime/EFBase.c
+    src/runtime/EFAllocator.c
 
-    src/EVNumber.c
-    src/EVString.c
-    src/EVArray.c
-    src/EVPage.c
-    src/EVPageGroup.c
-    src/EVData.c
+    src/EFNumber.c
+    src/EFString.c
+    src/EFArray.c
+    src/EFPage.c
+    src/EFPageGroup.c
+    src/EFData.c
 )
 
-target_include_directories(evObj
+target_include_directories(EmexFoundation
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
 )
 
-target_compile_features(evObj PUBLIC c_std_23)
+target_compile_features(EmexFoundation PUBLIC c_std_23)
 
 if (MSVC)
     # Fuck MSVC nobody likes you
@@ -33,31 +33,31 @@ if (MSVC)
 else()
 
     # Setting up compiler flags
-    set(_EV_WARN_FLAGS -Wall -Wextra -Wpedantic -Wno-unused-parameter)
-    set(_EV_OPT_FLAGS -fPIC)
+    set(_EF_WARN_FLAGS -Wall -Wextra -Wpedantic -Wno-unused-parameter)
+    set(_EF_OPT_FLAGS -fPIC)
 
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        list(APPEND _EV_OPT_FLAGS -O0 -g)
+        list(APPEND _EF_OPT_FLAGS -O0 -g)
     else()
-        list(APPEND _EV_OPT_FLAGS -O3 -fomit-frame-pointer -fstrict-aliasing -funroll-loops)
+        list(APPEND _EF_OPT_FLAGS -O3 -fomit-frame-pointer -fstrict-aliasing -funroll-loops)
 
         if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-            list(APPEND _EV_OPT_FLAGS -fgraphite-identity -floop-nest-optimize -fipa-pta)
+            list(APPEND _EF_OPT_FLAGS -fgraphite-identity -floop-nest-optimize -fipa-pta)
         elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
-            list(APPEND _EV_OPT_FLAGS -fvectorize -fslp-vectorize)
+            list(APPEND _EF_OPT_FLAGS -fvectorize -fslp-vectorize)
         endif()
     endif()
 
-    target_compile_definitions(evObj PRIVATE $<$<CONFIG:Debug>:DEBUG>)
-    target_compile_options(evObj PRIVATE ${_EV_WARN_FLAGS} ${_EV_OPT_FLAGS})
+    target_compile_definitions(EmexFoundation PRIVATE $<$<CONFIG:Debug>:DEBUG>)
+    target_compile_options(EmexFoundation PRIVATE ${_EF_WARN_FLAGS} ${_EF_OPT_FLAGS})
 endif()
 
-target_link_libraries(evObj
+target_link_libraries(EmexFoundation
     PRIVATE
         Threads::Threads
 )
 
-install(TARGETS evObj
+install(TARGETS EmexFoundation
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
 )

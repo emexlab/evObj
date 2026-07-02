@@ -15,7 +15,7 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EFENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
@@ -24,90 +24,90 @@
 
 #include <pthread.h>
 #include <sys/mman.h>
-#include <evObj/EVPage.h>
-#include <evObj/EVString.h>
-#include <evObj/runtime/EVBase.h>
-#include <evObj/runtime/EVAllocator.h>
+#include <EmexFoundation/EFPage.h>
+#include <EmexFoundation/EFString.h>
+#include <EmexFoundation/runtime/EFBase.h>
+#include <EmexFoundation/runtime/EFAllocator.h>
 
 #if defined(_WIN32)
     #include <windows.h>
 #elif defined(__APPLE__) || defined(__linux__) || defined(__unix__) || defined(__unix)
     #include <unistd.h>
 #else
-    #error "EVGetPageSize: unsupported platform"
+    #error "EFGetPageSize: unsupported platform"
 #endif
 
-static size_t __EVPageSize = 0;
+static size_t __EFPageSize = 0;
 
-static void __EVPageFindOutPageSize(void)
+static void __EFPageFindOutPageSize(void)
 {
 #if defined(_WIN32)
     SYSTEM_INFO si;
     GetSystemInfo(&si);
-    __EVPageSize = (size_t)si.dwPageSize;
+    __EFPageSize = (size_t)si.dwPageSize;
 #elif defined(__APPLE__) || defined(__linux__) || defined(__unix__) || defined(__unix)
     long ps = sysconf(_SC_PAGESIZE);
-    __EVPageSize = (ps > 0) ? (size_t)ps : 4096; /* fallback, sysconf rarely fails but be defensive */
+    __EFPageSize = (ps > 0) ? (size_t)ps : 4096; /* fallback, sysconf rarely fails but be defensive */
 #endif
 }
 
-size_t __EVPageGetPageSize(void)
+size_t __EFPageGetPageSize(void)
 {
     static pthread_once_t once = PTHREAD_ONCE_INIT;
-    pthread_once(&once, __EVPageFindOutPageSize);
-    return __EVPageSize;
+    pthread_once(&once, __EFPageFindOutPageSize);
+    return __EFPageSize;
 }
 
-typedef struct EVPage {
-    EVObject header;
+typedef struct EFPage {
+    EFObject header;
     uint8_t *mem;
     size_t len;
-} *EVPage;
+} *EFPage;
 
-static void __EVPageDeinit(EVPageRef pageRef)
+static void __EFPageDeinit(EFPageRef pageRef)
 {
-    EVPage page = (EVPage)pageRef;
+    EFPage page = (EFPage)pageRef;
     if(page->mem != MAP_FAILED)
     {
         munmap(page->mem, page->len);
     }
 }
 
-static EVStringRef __EVPageCopyDescription(EVPageRef pageRef)
+static EFStringRef __EFPageCopyDescription(EFPageRef pageRef)
 {
-    EVPage page = (EVPage)pageRef;
-    EVAllocatorRef allocatorRef = EVGetAllocator(pageRef);
-    EVClass *cls = EVClassGetByID(page->header.typeID);
-    return EVStringCreateWithFormat(allocatorRef, EV_STR("<%s %p>{mem = %p, len = %zu}"), cls->name, pageRef, page->mem, page->len);
+    EFPage page = (EFPage)pageRef;
+    EFAllocatorRef allocatorRef = EFGetAllocator(pageRef);
+    EFClass *cls = EFClassGetByID(page->header.typeID);
+    return EFStringCreateWithFormat(allocatorRef, EF_STR("<%s %p>{mem = %p, len = %zu}"), cls->name, pageRef, page->mem, page->len);
 }
 
-static EVClass EVPageClass = {
-    .name = "EVPage",
-    .typeID = kEVNotATypeID,
+static EFClass EFPageClass = {
+    .name = "EFPage",
+    .typeID = kEFNotATypeID,
     .init = NULL,
-    .deinit = __EVPageDeinit,
+    .deinit = __EFPageDeinit,
     .equal = NULL,
-    .copyDescription = __EVPageCopyDescription,
+    .copyDescription = __EFPageCopyDescription,
 };
 
-static void EVPageRegisterClass(void)
+static void EFPageRegisterClass(void)
 {
-    EVClassRegister(&EVPageClass);
+    EFClassRegister(&EFPageClass);
 }
 
-EVTypeID EVPageGetTypeID(void)
+EFTypeID EFPageGetTypeID(void)
 {
     static pthread_once_t once = PTHREAD_ONCE_INIT;
-    pthread_once(&once, EVPageRegisterClass);
-    return EVPageClass.typeID;
+    pthread_once(&once, EFPageRegisterClass);
+    return EFPageClass.typeID;
 }
 
-EVPageRef EVPageCreate(EVAllocatorRef allocatorRef)
+EFPageRef EFPageCreate(EFAllocatorRef allocatorRef)
 {
-    return EVPageCreateWithOptions(allocatorRef, NULL, __EVPageGetPageSize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    return EFPageCreateWithOptions(allocatorRef, NULL, __EFPageGetPageSize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 }
 
-EVPageRef EVPageCreateWithOptions(EVAllocatorRef allocatorRef,
+EFPageRef EFPageCreateWithOptions(EFAllocatorRef allocatorRef,
                                   void *addr,
                                   size_t len,
                                   int prot,
@@ -115,7 +115,7 @@ EVPageRef EVPageCreateWithOptions(EVAllocatorRef allocatorRef,
                                   int fd,
                                   off_t offset)
 {
-    EVPage page = (EVPage)EVObjectAlloc(allocatorRef, EVPageGetTypeID(), sizeof(struct EVPage));
+    EFPage page = (EFPage)EFObjectAlloc(allocatorRef, EFPageGetTypeID(), sizeof(struct EFPage));
     if(page == NULL)
     {
         return NULL;
@@ -125,16 +125,16 @@ EVPageRef EVPageCreateWithOptions(EVAllocatorRef allocatorRef,
     page->mem = mmap(addr, len, prot, flags, fd, offset);
     if(page->mem == MAP_FAILED)
     {
-        EVRelease(page);
+        EFRelease(page);
         return NULL;
     }
 
-    return (EVPageRef)page;
+    return (EFPageRef)page;
 }
 
-size_t EVPageGetSize(EVPageRef pageRef)
+size_t EFPageGetSize(EFPageRef pageRef)
 {
-    EVPage page = (EVPage)pageRef;
+    EFPage page = (EFPage)pageRef;
     if(page == NULL)
     {
         return 0;
@@ -142,9 +142,9 @@ size_t EVPageGetSize(EVPageRef pageRef)
     return page->len;
 }
 
-void *EVPageGetPtr(EVPageRef pageRef)
+void *EFPageGetPtr(EFPageRef pageRef)
 {
-    EVPage page = (EVPage)pageRef;
+    EFPage page = (EFPage)pageRef;
     if(page == NULL)
     {
         return NULL;

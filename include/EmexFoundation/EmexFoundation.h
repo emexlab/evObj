@@ -15,21 +15,26 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EFENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
 
-#ifndef EVALLOCATOR_H
-#define EVALLOCATOR_H
+#ifndef EMEXFOUNDATION_H
+#define EMEXFOUNDATION_H
 
-#include <evObj/runtime/EVBase.h>
+/* runtime */
+#include <EmexFoundation/runtime/EFBase.h>
+#include <EmexFoundation/runtime/EFAllocator.h>
 
-extern EVAllocatorRef kEVAllocatorDefault;
+/* types */
+#include <EmexFoundation/EFNumber.h>
+#include <EmexFoundation/EFString.h>
+#include <EmexFoundation/EFArray.h>
+#include <EmexFoundation/EFPage.h>
+#include <EmexFoundation/EFPageGroup.h>
+#include <EmexFoundation/EFData.h>
 
-EVObjectRef EVObjectAlloc(EVAllocatorRef allocatorRef, EVTypeID typeID, size_t size);
-void EVObjectDealloc(EVObjectRef ref);
-
-#endif /* EVALLOCATOR_H */
+#endif /* EMEXFOUNDATION_H */

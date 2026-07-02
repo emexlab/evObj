@@ -15,7 +15,7 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EFENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
@@ -26,62 +26,62 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <string.h>
-#include <evObj/EVArray.h>
-#include <evObj/EVString.h>
-#include <evObj/runtime/EVBase.h>
-#include <evObj/runtime/EVAllocator.h>
+#include <EmexFoundation/EFArray.h>
+#include <EmexFoundation/EFString.h>
+#include <EmexFoundation/runtime/EFBase.h>
+#include <EmexFoundation/runtime/EFAllocator.h>
 
-typedef struct EVArray {
-    EVObject header;
+typedef struct EFArray {
+    EFObject header;
 
     bool mutable;
-    EVArrayCallbacks callbacks;
+    EFArrayCallbacks callbacks;
 
     uint64_t items_cap;
     uint64_t items_cnt;
     void **items;
-} *EVArray;
+} *EFArray;
 
-EVArrayCallbacks kEVArrayCallbacksDefaultCallbacks = &(struct EVArrayCallbacks){
+EFArrayCallbacks kEFArrayCallbacksDefaultCallbacks = &(struct EFArrayCallbacks){
     .append = NULL,
     .remove = NULL,
     .equal = NULL,
     .copyDescription = NULL,
 };
 
-static bool __EVArrayAppendObjectCallback(void *ptr)
+static bool __EFArrayAppendObjectCallback(void *ptr)
 {
-    EVObjectRef ref = EVRetain((EVObjectRef)ptr);
+    EFObjectRef ref = EFRetain((EFObjectRef)ptr);
     return (ref != NULL);
 }
 
-static void __EVArrayRemoveObjectCallback(void *ptr)
+static void __EFArrayRemoveObjectCallback(void *ptr)
 {
-    EVRelease((EVObjectRef)ptr);
+    EFRelease((EFObjectRef)ptr);
 }
 
-static bool __EVArrayEqualObjectCallback(void *ptr1,
+static bool __EFArrayEqualObjectCallback(void *ptr1,
                                          void *ptr2)
 {
-    return EVEqual((EVObjectRef)ptr1, (EVObjectRef)ptr2);
+    return EFEqual((EFObjectRef)ptr1, (EFObjectRef)ptr2);
 }
 
-static EVStringRef __EVArrayCopyDescriptionObjectCallback(EVAllocatorRef allocatorRef,
+static EFStringRef __EFArrayCopyDescriptionObjectCallback(EFAllocatorRef allocatorRef,
                                                           void *ptr)
 {
-    return EVStringCreateWithFormat(allocatorRef, EV_STR("%@"), (EVObjectRef)ptr);
+    return EFStringCreateWithFormat(allocatorRef, EF_STR("%@"), (EFObjectRef)ptr);
 }
 
-EVArrayCallbacks kEVArrayCallbacksObjectCallbacks = &(struct EVArrayCallbacks){
-    .append = __EVArrayAppendObjectCallback,
-    .remove = __EVArrayRemoveObjectCallback,
-    .equal = __EVArrayEqualObjectCallback,
-    .copyDescription = __EVArrayCopyDescriptionObjectCallback,
+EFArrayCallbacks kEFArrayCallbacksObjectCallbacks = &(struct EFArrayCallbacks){
+    .append = __EFArrayAppendObjectCallback,
+    .remove = __EFArrayRemoveObjectCallback,
+    .equal = __EFArrayEqualObjectCallback,
+    .copyDescription = __EFArrayCopyDescriptionObjectCallback,
 };
 
-static void __EVArrayClassDeinit(EVArrayRef arrayRef)
+static void __EFArrayClassDeinit(EFArrayRef arrayRef)
 {
-    EVArray array = (EVArray)arrayRef;
+    EFArray array = (EFArray)arrayRef;
     if(array->callbacks->remove)
     {
         for(uint64_t index = 0; index < array->items_cnt; index++)
@@ -92,18 +92,18 @@ static void __EVArrayClassDeinit(EVArrayRef arrayRef)
     free(array->items);
 }
 
-static Boolean __EVArrayClassEqual(EVArrayRef arrayRef1,
-                                   EVArrayRef arrayRef2)
+static Boolean __EFArrayClassEqual(EFArrayRef arrayRef1,
+                                   EFArrayRef arrayRef2)
 {
-    EVArray array1 = (EVArray)arrayRef1;
-    EVArray array2 = (EVArray)arrayRef2;
+    EFArray array1 = (EFArray)arrayRef1;
+    EFArray array2 = (EFArray)arrayRef2;
 
     if(array1->callbacks != array2->callbacks ||
        array1->items_cnt != array2->items_cnt)
     {
         return false;
     }
-    EVArrayCallbacks callbacks = array1->callbacks;
+    EFArrayCallbacks callbacks = array1->callbacks;
 
     for(uint64_t index = 0; index < array1->items_cnt; index++)
     {
@@ -121,20 +121,20 @@ static Boolean __EVArrayClassEqual(EVArrayRef arrayRef1,
     return true;
 }
 
-static EVStringRef __EVArrayCopyDescription(EVArrayRef arrayRef)
+static EFStringRef __EFArrayCopyDescription(EFArrayRef arrayRef)
 {
-    EVArray array = (EVArray)arrayRef;
-    EVAllocatorRef allocatorRef = EVGetAllocator(arrayRef);
-    EVClass *cls = EVClassGetByID(array->header.typeID);
+    EFArray array = (EFArray)arrayRef;
+    EFAllocatorRef allocatorRef = EFGetAllocator(arrayRef);
+    EFClass *cls = EFClassGetByID(array->header.typeID);
 
-    EVStringRef baseStringRef = EVStringCreateWithFormat(allocatorRef, EV_STR("<%s %p>{count = %llu, items = {"), cls->name, arrayRef, array->items_cnt);
+    EFStringRef baseStringRef = EFStringCreateWithFormat(allocatorRef, EF_STR("<%s %p>{count = %llu, items = {"), cls->name, arrayRef, array->items_cnt);
     if(baseStringRef == NULL)
     {
         return NULL;
     }
 
-    EVMutableStringRef mutableStringRef = EVStringCreateMutableCopy(allocatorRef, baseStringRef);
-    EVRelease(baseStringRef);
+    EFMutableStringRef mutableStringRef = EFStringCreateMutableCopy(allocatorRef, baseStringRef);
+    EFRelease(baseStringRef);
     if(mutableStringRef == NULL)
     {
         return NULL;
@@ -144,15 +144,15 @@ static EVStringRef __EVArrayCopyDescription(EVArrayRef arrayRef)
     {
         if(index > 0)
         {
-            if(!EVStringAppendString(mutableStringRef, EV_STR(", ")))
+            if(!EFStringAppendString(mutableStringRef, EF_STR(", ")))
             {
-                EVRelease(mutableStringRef);
+                EFRelease(mutableStringRef);
                 return NULL;
             }
         }
 
-        void *ptr = EVArrayGetValueAtIndex(arrayRef, index);
-        EVStringRef stringRef = NULL;
+        void *ptr = EFArrayGetValueAtIndex(arrayRef, index);
+        EFStringRef stringRef = NULL;
         if(array->callbacks->copyDescription)
         {
             stringRef = array->callbacks->copyDescription(allocatorRef, ptr);
@@ -160,61 +160,61 @@ static EVStringRef __EVArrayCopyDescription(EVArrayRef arrayRef)
 
         if(stringRef == NULL)
         {
-            stringRef = EVStringCreateWithFormat(allocatorRef, EV_STR("%p"), ptr);
+            stringRef = EFStringCreateWithFormat(allocatorRef, EF_STR("%p"), ptr);
         }
 
         if(stringRef == NULL)
         {
-            EVRelease(mutableStringRef);
+            EFRelease(mutableStringRef);
             return NULL;
         }
 
-        bool success = EVStringAppendString(mutableStringRef, stringRef);
-        EVRelease(stringRef);
+        bool success = EFStringAppendString(mutableStringRef, stringRef);
+        EFRelease(stringRef);
         if(!success)
         {
-            EVRelease(mutableStringRef);
+            EFRelease(mutableStringRef);
             return NULL;
         }
     }
 
-    if(!EVStringAppendString(mutableStringRef, EV_STR("}}")))
+    if(!EFStringAppendString(mutableStringRef, EF_STR("}}")))
     {
-        EVRelease(mutableStringRef);
+        EFRelease(mutableStringRef);
         return NULL;   
     }
 
     return mutableStringRef;
 }
 
-static EVClass EVArrayClass = {
-    .name = "EVArray",
-    .typeID = kEVNotATypeID,
+static EFClass EFArrayClass = {
+    .name = "EFArray",
+    .typeID = kEFNotATypeID,
     .init = NULL,
-    .deinit = __EVArrayClassDeinit,
-    .equal = __EVArrayClassEqual,
-    .copyDescription = __EVArrayCopyDescription,
+    .deinit = __EFArrayClassDeinit,
+    .equal = __EFArrayClassEqual,
+    .copyDescription = __EFArrayCopyDescription,
 };
 
-static void EVArrayRegisterClass(void)
+static void EFArrayRegisterClass(void)
 {
-    EVClassRegister(&EVArrayClass);
+    EFClassRegister(&EFArrayClass);
 }
 
-EVTypeID EVArrayGetTypeID(void)
+EFTypeID EFArrayGetTypeID(void)
 {
     static pthread_once_t once = PTHREAD_ONCE_INIT;
-    pthread_once(&once, EVArrayRegisterClass);
-    return EVArrayClass.typeID;
+    pthread_once(&once, EFArrayRegisterClass);
+    return EFArrayClass.typeID;
 }
 
-EVMutableArrayRef EVArrayCreateMutable(EVAllocatorRef allocatorRef,
-                                       EVArrayCallbacks callbacks,
+EFMutableArrayRef EFArrayCreateMutable(EFAllocatorRef allocatorRef,
+                                       EFArrayCallbacks callbacks,
                                        uint64_t capacity)
 {
     if(callbacks == NULL)
     {
-        callbacks = kEVArrayCallbacksDefaultCallbacks;
+        callbacks = kEFArrayCallbacksDefaultCallbacks;
     }
 
     void *items = NULL; /* freeing NULL is allowed as a UNIX semantic */
@@ -227,7 +227,7 @@ EVMutableArrayRef EVArrayCreateMutable(EVAllocatorRef allocatorRef,
         }
     }
 
-    EVArray array = (EVArray)EVObjectAlloc(allocatorRef, EVArrayGetTypeID(), sizeof(struct EVArray));
+    EFArray array = (EFArray)EFObjectAlloc(allocatorRef, EFArrayGetTypeID(), sizeof(struct EFArray));
     if(array == NULL)
     {
         free(items);
@@ -240,11 +240,11 @@ EVMutableArrayRef EVArrayCreateMutable(EVAllocatorRef allocatorRef,
     array->items_cap = capacity;
     array->items = items;
 
-    return (EVMutableArrayRef)array;
+    return (EFMutableArrayRef)array;
 }
 
-static EVArrayRef __EVArrayCreateCopy(EVAllocatorRef allocatorRef,
-                                      EVArrayRef arrayRef,
+static EFArrayRef __EFArrayCreateCopy(EFAllocatorRef allocatorRef,
+                                      EFArrayRef arrayRef,
                                       bool mutable)
 {
     if(arrayRef == NULL)
@@ -252,8 +252,8 @@ static EVArrayRef __EVArrayCreateCopy(EVAllocatorRef allocatorRef,
         return NULL;
     }
 
-    EVArray srcArray = (EVArray)arrayRef;
-    EVMutableArrayRef copyArrayRef = EVArrayCreateMutable(allocatorRef, srcArray->callbacks, srcArray->items_cnt);
+    EFArray srcArray = (EFArray)arrayRef;
+    EFMutableArrayRef copyArrayRef = EFArrayCreateMutable(allocatorRef, srcArray->callbacks, srcArray->items_cnt);
     if(copyArrayRef == NULL)
     {
         return NULL;
@@ -261,42 +261,42 @@ static EVArrayRef __EVArrayCreateCopy(EVAllocatorRef allocatorRef,
 
     for(uint64_t index = 0; index < srcArray->items_cnt; index++)
     {
-        if(!EVArrayAppendValue(copyArrayRef, srcArray->items[index]))
+        if(!EFArrayAppendValue(copyArrayRef, srcArray->items[index]))
         {
-            EVRelease((EVObjectRef)copyArrayRef);
+            EFRelease((EFObjectRef)copyArrayRef);
             return NULL;
         }
     }
 
-    ((EVArray)copyArrayRef)->mutable = mutable;
+    ((EFArray)copyArrayRef)->mutable = mutable;
 
-    return (EVArrayRef)copyArrayRef;
+    return (EFArrayRef)copyArrayRef;
 }
 
-EVMutableArrayRef EVArrayCreateMutableCopy(EVAllocator *allocator,
-                                           EVArrayRef arrayRef)
+EFMutableArrayRef EFArrayCreateMutableCopy(EFAllocator *allocator,
+                                           EFArrayRef arrayRef)
 {
-    return (EVMutableArrayRef)__EVArrayCreateCopy(allocator, arrayRef, true);
+    return (EFMutableArrayRef)__EFArrayCreateCopy(allocator, arrayRef, true);
 }
 
-EVArrayRef EVArrayCreateCopy(EVAllocator *allocator,
-                             EVArrayRef arrayRef)
+EFArrayRef EFArrayCreateCopy(EFAllocator *allocator,
+                             EFArrayRef arrayRef)
 {
-    return (EVMutableArrayRef)__EVArrayCreateCopy(allocator, arrayRef, false);
+    return (EFMutableArrayRef)__EFArrayCreateCopy(allocator, arrayRef, false);
 }
 
-uint64_t EVArrayGetCount(EVArrayRef arrayRef)
+uint64_t EFArrayGetCount(EFArrayRef arrayRef)
 {
     if(arrayRef == NULL)
     {
         return 0;
     }
 
-    EVArray array = (EVArray)arrayRef;
+    EFArray array = (EFArray)arrayRef;
     return array->items_cnt;
 }
 
-void *EVArrayGetValueAtIndex(EVArrayRef arrayRef,
+void *EFArrayGetValueAtIndex(EFArrayRef arrayRef,
                              uint64_t index)
 {
     if(arrayRef == NULL)
@@ -305,7 +305,7 @@ void *EVArrayGetValueAtIndex(EVArrayRef arrayRef,
     }
 
     /* wrap around check */
-    EVArray array = (EVArray)arrayRef;
+    EFArray array = (EFArray)arrayRef;
     if(array->items_cnt <= index)
     {
         return NULL;
@@ -314,7 +314,7 @@ void *EVArrayGetValueAtIndex(EVArrayRef arrayRef,
     return array->items[index];
 }
 
-bool __EVArrayResizeIfNeededForOneMoreIndex(EVArray array)
+bool __EFArrayResizeIfNeededForOneMoreIndex(EFArray array)
 {
     uint64_t needed_cap = array->items_cnt + 1;
     if(array->items_cap >= needed_cap)
@@ -342,11 +342,11 @@ bool __EVArrayResizeIfNeededForOneMoreIndex(EVArray array)
     return true;
 }
 
-bool EVArrayAppendValue(EVArrayRef arrayRef,
+bool EFArrayAppendValue(EFArrayRef arrayRef,
                         void *ptr)
 {
-    EVArray array = (EVArray)arrayRef;
-    if(arrayRef == NULL || ptr == NULL || !array->mutable || array->items_cnt >= UINT64_MAX || !__EVArrayResizeIfNeededForOneMoreIndex(array))
+    EFArray array = (EFArray)arrayRef;
+    if(arrayRef == NULL || ptr == NULL || !array->mutable || array->items_cnt >= UINT64_MAX || !__EFArrayResizeIfNeededForOneMoreIndex(array))
     {
         return false;
     }
@@ -366,12 +366,12 @@ bool EVArrayAppendValue(EVArrayRef arrayRef,
     return true;
 }
 
-bool EVArrayInsertValueAtIndex(EVArrayRef arrayRef,
+bool EFArrayInsertValueAtIndex(EFArrayRef arrayRef,
                                uint64_t index,
                                void *ptr)
 {
-    EVArray array = (EVArray)arrayRef;
-    if(array == NULL || ptr == NULL || !array->mutable || index > array->items_cnt || array->items_cnt >= UINT64_MAX || !__EVArrayResizeIfNeededForOneMoreIndex(array))
+    EFArray array = (EFArray)arrayRef;
+    if(array == NULL || ptr == NULL || !array->mutable || index > array->items_cnt || array->items_cnt >= UINT64_MAX || !__EFArrayResizeIfNeededForOneMoreIndex(array))
     {
         return false;
     }
@@ -392,10 +392,10 @@ bool EVArrayInsertValueAtIndex(EVArrayRef arrayRef,
     return true;
 }
 
-void EVArrayRemoveValueAtIndex(EVArrayRef arrayRef,
+void EFArrayRemoveValueAtIndex(EFArrayRef arrayRef,
                                uint64_t index)
 {
-    EVArray array = (EVArray)arrayRef;
+    EFArray array = (EFArray)arrayRef;
     if(array == NULL || !array->mutable || index >= array->items_cnt)
     {
         return;

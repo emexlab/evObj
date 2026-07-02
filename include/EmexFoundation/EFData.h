@@ -15,28 +15,28 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EFENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
 
-#ifndef EVDATA_H
-#define EVDATA_H
+#ifndef EFDATA_H
+#define EFDATA_H
 
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include <evObj/runtime/EVBase.h>
+#include <EmexFoundation/runtime/EFBase.h>
 
-typedef EVObjectRef EVDataRef;
-typedef EVObjectRef EVMutableDataRef;
+typedef EFObjectRef EFDataRef;
+typedef EFObjectRef EFMutableDataRef;
 
-EVDataRef EVDataCreateWithCBuffer(EVAllocatorRef allocatorRef, const uint8_t *bytes, size_t length);
-EVDataRef EVDataCreateWithCBufferNoCopy(EVAllocatorRef allocatorRef, const uint8_t *bytes, size_t length);
-EVMutableDataRef EVDataCreateMutable(EVAllocatorRef allocatorRef, size_t capacity);
-EVDataRef EVDataCreateCopy(EVAllocatorRef allocatorRef, EVDataRef dataRef);
-EVMutableDataRef EVDataCreateMutableCopy(EVAllocatorRef allocatorRef, EVDataRef dataRef);
+EFDataRef EFDataCreateWithCBuffer(EFAllocatorRef allocatorRef, const uint8_t *bytes, size_t length);
+EFDataRef EFDataCreateWithCBufferNoCopy(EFAllocatorRef allocatorRef, const uint8_t *bytes, size_t length);
+EFMutableDataRef EFDataCreateMutable(EFAllocatorRef allocatorRef, size_t capacity);
+EFDataRef EFDataCreateCopy(EFAllocatorRef allocatorRef, EFDataRef dataRef);
+EFMutableDataRef EFDataCreateMutableCopy(EFAllocatorRef allocatorRef, EFDataRef dataRef);
 
-#endif /* EVDATA_H */
+#endif /* EFDATA_H */
