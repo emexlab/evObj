@@ -169,7 +169,7 @@ static EFStringRef __EFArrayCopyDescription(EFArrayRef arrayRef)
             return NULL;
         }
 
-        bool success = EFStringAppendString(mutableStringRef, stringRef);
+        Boolean success = EFStringAppendString(mutableStringRef, stringRef);
         EFRelease(stringRef);
         if(!success)
         {
@@ -314,7 +314,7 @@ void *EFArrayGetValueAtIndex(EFArrayRef arrayRef,
     return array->items[index];
 }
 
-bool __EFArrayResizeIfNeededForOneMoreIndex(EFArray array)
+Boolean __EFArrayResizeIfNeededForOneMoreIndex(EFArray array)
 {
     EFIndex needed_cap = array->items_cnt + 1;
     if(array->items_cap >= needed_cap)

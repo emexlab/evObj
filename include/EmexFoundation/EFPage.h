@@ -39,7 +39,7 @@ EFIndex __EFPageGetPageLength(void);
 EFTypeID EFPageGetTypeID(void);
 
 EFPageRef EFPageCreate(EFAllocatorRef allocatorRef);
-EFPageRef EFPageCreateWithOptions(EFAllocatorRef allocatorRef, void *addr, size_t len, int prot, int flags, int fd, off_t offset);
+EFPageRef EFPageCreateWithOptions(EFAllocatorRef allocatorRef, void *addr, size_t length, int prot, int flags, int fd, off_t offset);
 
 EFIndex EFPageGetLength(EFPageRef pageRef);
 void *EFPageGetPtr(EFPageRef pageRef);

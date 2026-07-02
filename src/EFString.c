@@ -34,15 +34,15 @@
 typedef __EFString EFString;
 
 static Boolean __EFStringValidateEncoding(kEFStringEncoding encoding,
-                                          const char *buf,
-                                          size_t len)
+                                          const char *buffer,
+                                          size_t length)
 {
     switch(encoding)
     {
         case kEFStringEncodingUTF7:
-            for(size_t i = 0; i < len; i++)
+            for(size_t i = 0; i < length; i++)
             {
-                if((unsigned char)buf[i] > 0x7F)
+                if((unsigned char)buffer[i] > 0x7F)
                 {
                     return false;
                 }
@@ -51,9 +51,9 @@ static Boolean __EFStringValidateEncoding(kEFStringEncoding encoding,
         case kEFStringEncodingUTF8: /* thanks to: https://www.rfc-editor.org/rfc/rfc3629.html */
         {
             size_t i = 0;
-            while(i < len)
+            while(i < length)
             {
-                unsigned char c = (unsigned char)buf[i];
+                unsigned char c = (unsigned char)buffer[i];
                 int seqlen;
                 unsigned int cp;
                 if(c < 0x80)
@@ -81,13 +81,13 @@ static Boolean __EFStringValidateEncoding(kEFStringEncoding encoding,
                     return false;
                 }
 
-                if(i + (size_t)seqlen > len)
+                if(i + (size_t)seqlen > length)
                 {
                     return false;
                 }
                 for(int k = 1; k < seqlen; ++k)
                 {
-                    unsigned char cc = (unsigned char)buf[i+k];
+                    unsigned char cc = (unsigned char)buffer[i+k];
                     if((cc & 0xC0) != 0x80)
                     {
                         return false;
@@ -121,7 +121,7 @@ static void __EFStringDeinit(EFStringRef stringRef)
     EFString string = (EFString)stringRef;
     if(string->is_mutable)
     {
-        free(string->buf);
+        free(string->buffer);
     }
 }
 
@@ -132,26 +132,26 @@ static Boolean __EFStringEqual(EFStringRef stringRef1,
     EFString string2 = (EFString)stringRef2;
 
     /* size must match */
-    if(string1->len != string2->len)
+    if(string1->length != string2->length)
     {
         return false;
     }
 
-    /* they share the same lenght */
-    size_t len = string1->len;
+    /* they share the same length */
+    size_t length = string1->length;
 
     /* strings must comply to their encodings */
     if(string1->encoding != string2->encoding)
     {
-        bool string1_complies = __EFStringValidateEncoding(string2->encoding, string1->buf, len);
-        bool string2_complies = __EFStringValidateEncoding(string1->encoding, string2->buf, len);
+        Boolean string1_complies = __EFStringValidateEncoding(string2->encoding, string1->buffer, length);
+        Boolean string2_complies = __EFStringValidateEncoding(string1->encoding, string2->buffer, length);
         if(!string1_complies || !string2_complies)
         {
             return false;
         }
     }
 
-    return (memcmp(string1->buf, string2->buf, len) == 0);
+    return (memcmp(string1->buffer, string2->buffer, length) == 0);
 }
 
 static EFStringRef __EFStringCopyDescription(EFStringRef stringRef)
@@ -181,24 +181,24 @@ EFTypeID EFStringGetTypeID(void)
 }
 
 static inline EFStringRef __EFStringCreate(EFAllocatorRef allocatorRef,
-                                           const uint8_t *buf,
-                                           size_t len,
+                                           const UInt8 *buffer,
+                                           size_t length,
                                            kEFStringEncoding encoding,
                                            Boolean is_inlined,
                                            Boolean is_mutable)
 {
-    if(buf == NULL)
+    if(buffer == NULL)
     {
         return NULL;
     }
 
-    len = strnlen((const char*)buf, len);
-    if(!__EFStringValidateEncoding(encoding, (const char*)buf, len))
+    length = strnlen((const char*)buffer, length);
+    if(!__EFStringValidateEncoding(encoding, (const char*)buffer, length))
     {
         return NULL;
     }
 
-    EFString string = EFObjectAlloc(allocatorRef, EFStringGetTypeID(), sizeof(struct __EFString) + (is_inlined ? len + 1 : 0));
+    EFString string = EFObjectAlloc(allocatorRef, EFStringGetTypeID(), sizeof(struct __EFString) + (is_inlined ? length + 1 : 0));
     if(string == NULL)
     {
         return NULL;
@@ -206,24 +206,24 @@ static inline EFStringRef __EFStringCreate(EFAllocatorRef allocatorRef,
 
     if(is_mutable)
     {
-        string->buf = malloc(len + 1);
+        string->buffer = malloc(length + 1);
         is_inlined = false; /* must be false */
-        goto needs_copy;    /* skips past the string->buf pointer assignment of a inlined string */
+        goto needs_copy;    /* skips past the string->buffer pointer assignment of a inlined string */
     }
     else if(is_inlined)
     {
-        string->buf = (char*)((const char*)string + sizeof(struct __EFString));
+        string->buffer = (char*)((const char*)string + sizeof(struct __EFString));
     needs_copy:
-        memcpy(string->buf, buf, len);
-        string->buf[len] = '\0';
+        memcpy(string->buffer, buffer, length);
+        string->buffer[length] = '\0';
     }
     else
     {
-        string->buf = (char*)buf;
+        string->buffer = (char*)buffer;
     }
 
     /* always assigned with the same values */
-    string->len = len;
+    string->length = length;
     string->encoding = encoding;
     string->is_inlined = !is_mutable && is_inlined; /* is_inlined is only possible when is_mutable is not enabled */
     string->is_mutable = is_mutable;
@@ -241,8 +241,8 @@ static inline EFStringRef __EFStringCreateWithCString(EFAllocatorRef allocatorRe
         return NULL;
     }
 
-    size_t len = strlen(str);
-    return __EFStringCreate(allocatorRef, (const uint8_t*)str, len, encoding, is_inlined, false);
+    size_t length = strlen(str);
+    return __EFStringCreate(allocatorRef, (const UInt8*)str, length, encoding, is_inlined, false);
 }
 
 static inline EFStringRef __EFStringCreateCopy(EFAllocatorRef allocatorRef,
@@ -261,23 +261,23 @@ static inline EFStringRef __EFStringCreateCopy(EFAllocatorRef allocatorRef,
         allocatorRef = EFGetAllocator(stringRef);
     }
 
-    return __EFStringCreate(allocatorRef, (const uint8_t*)string->buf, string->len, string->encoding, string->is_inlined, is_mutable);
+    return __EFStringCreate(allocatorRef, (const UInt8*)string->buffer, string->length, string->encoding, string->is_inlined, is_mutable);
 }
 
 EFStringRef EFStringCreateWithCBuffer(EFAllocatorRef allocatorRef,
-                                      const uint8_t *buf,
-                                      size_t len,
+                                      const UInt8 *buffer,
+                                      size_t length,
                                       kEFStringEncoding encoding)
 {
-    return __EFStringCreate(allocatorRef, buf, len, encoding, true, false);
+    return __EFStringCreate(allocatorRef, buffer, length, encoding, true, false);
 }
 
 EFStringRef EFStringCreateWithCBufferNoCopy(EFAllocatorRef allocatorRef,
-                                            const uint8_t *buf,
-                                            size_t len,
+                                            const UInt8 *buffer,
+                                            size_t length,
                                             kEFStringEncoding encoding)
 {
-    return __EFStringCreate(allocatorRef, buf, len, encoding, false, false);
+    return __EFStringCreate(allocatorRef, buffer, length, encoding, false, false);
 }
 
 EFStringRef EFStringCreateWithCString(EFAllocatorRef allocatorRef,
@@ -296,9 +296,9 @@ EFStringRef EFStringCreateWithCStringNoCopy(EFAllocatorRef allocatorRef,
 
 typedef struct {
     char *data;
-    size_t len;
+    size_t length;
     size_t cap;
-    bool failed;
+    Boolean failed;
 } __EFFmtBuf;
 
 static inline void __evfb_ensure(__EFFmtBuf *b,
@@ -308,10 +308,10 @@ static inline void __evfb_ensure(__EFFmtBuf *b,
     {
         return;
     }
-    if(b->len + extra + 1 > b->cap)
+    if(b->length + extra + 1 > b->cap)
     {
         size_t nc = b->cap ? b->cap : 64;
-        while(nc < b->len + extra + 1)
+        while(nc < b->length + extra + 1)
         {
             nc *= 2;
         }
@@ -329,13 +329,13 @@ static inline void __evfb_bytes(__EFFmtBuf *b,
                                 size_t n)
 {
     __evfb_ensure(b, n); if (b->failed) return;
-    memcpy(b->data + b->len, s, n); b->len += n;
+    memcpy(b->data + b->length, s, n); b->length += n;
 }
 
 static inline void __evfb_char(__EFFmtBuf *b,
                                char c)
 {
-    __evfb_ensure(b, 1); if (b->failed) return; b->data[b->len++] = c;
+    __evfb_ensure(b, 1); if (b->failed) return; b->data[b->length++] = c;
 }
 
 enum {
@@ -359,8 +359,8 @@ enum {
         return; \
     } \
     __evfb_ensure(b, (size_t)_n); if (b->failed) return; \
-    snprintf(b->data + b->len, (size_t)_n + 1, spec, _v); \
-    b->len += (size_t)_n; \
+    snprintf(b->data + b->length, (size_t)_n + 1, spec, _v); \
+    b->length += (size_t)_n; \
 } while (0)
 
 static inline void __EFEmitValue(__EFFmtBuf *b,
@@ -600,7 +600,7 @@ EFStringRef EFStringCreateWithFormatAndArguments(EFAllocatorRef allocatorRef,
         return NULL;
     }
 
-    EFStringRef resultRef = EFStringCreateWithCBuffer(allocatorRef, (const uint8_t *)(b.data ? b.data : ""), b.len, kEFStringEncodingUTF8);
+    EFStringRef resultRef = EFStringCreateWithCBuffer(allocatorRef, (const UInt8 *)(b.data ? b.data : ""), b.length, kEFStringEncodingUTF8);
     free(b.data);
     return resultRef;
 }
@@ -637,12 +637,12 @@ const char *EFStringGetCStringPtr(EFStringRef stringRef,
     }
 
     EFString string = (EFString)stringRef;
-    if(!__EFStringValidateEncoding(encoding, string->buf, string->len))
+    if(!__EFStringValidateEncoding(encoding, string->buffer, string->length))
     {
         return NULL;
     }
 
-    return string->buf;
+    return string->buffer;
 }
 
 EFIndex EFStringGetLength(EFStringRef stringRef)
@@ -653,7 +653,7 @@ EFIndex EFStringGetLength(EFStringRef stringRef)
     }
 
     EFString string = (EFString)stringRef;
-    return string->len;
+    return string->length;
 }
 
 Boolean EFStringGetCString(EFStringRef stringRef,
@@ -667,15 +667,15 @@ Boolean EFStringGetCString(EFStringRef stringRef,
         return false;
     }
 
-    EFIndex len = EFStringGetLength(stringRef);
-    if((len + 1) > (EFIndex)str_len)
+    EFIndex length = EFStringGetLength(stringRef);
+    if((length + 1) > (EFIndex)str_len)
     {
         /* buffer is too small */
         return false;
     }
 
-    memcpy(str, str_ptr, len);
-    str[len] = '\0';
+    memcpy(str, str_ptr, length);
+    str[length] = '\0';
     return true;
 }
 
@@ -692,22 +692,22 @@ EFArrayRef EFStringComponentsSplitBySeparator(EFStringRef stringRef,
 
     /* the separator has to comply to the encoding of the string */
     if(string->encoding != separatorString->encoding &&
-        !__EFStringValidateEncoding(string->encoding, separatorString->buf, separatorString->len))
+        !__EFStringValidateEncoding(string->encoding, separatorString->buffer, separatorString->length))
     {
         return NULL;
     }
 
     /* the string must be bigger than the separator */
-    if(separatorString->len >= string->len)
+    if(separatorString->length >= string->length)
     {
         return NULL;
     }
 
     /* now we gotta calculate the amount of split items */
     EFIndex componentCount = 0;
-    for(EFIndex i = 0; i < string->len; i++)
+    for(EFIndex i = 0; i < string->length; i++)
     {
-        if(strncmp(&string->buf[i], separatorString->buf, (size_t)separatorString->len) == 0)
+        if(strncmp(&string->buffer[i], separatorString->buffer, (size_t)separatorString->length) == 0)
         {
             componentCount++;
         }
@@ -723,19 +723,19 @@ EFArrayRef EFStringComponentsSplitBySeparator(EFStringRef stringRef,
 
     /* now creating the sub components */
     EFIndex lastLengthMatch = 0;
-    for(EFIndex i = 0; i < string->len; i++)
+    for(EFIndex i = 0; i < string->length; i++)
     {
-        if(strncmp(&string->buf[i], separatorString->buf, separatorString->len) == 0)
+        if(strncmp(&string->buffer[i], separatorString->buffer, separatorString->length) == 0)
         {
             EFIndex length = i - lastLengthMatch;
-            EFStringRef componentRef = EFStringCreateWithCBuffer(allocatorRef, (const uint8_t *)&string->buf[lastLengthMatch], length, string->encoding);
+            EFStringRef componentRef = EFStringCreateWithCBuffer(allocatorRef, (const UInt8 *)&string->buffer[lastLengthMatch], length, string->encoding);
             if(componentRef == NULL)
             {
                 EFRelease(componentsArrayRef);
                 return NULL;
             }
 
-            bool success = EFArrayAppendValue(componentsArrayRef, componentRef);
+            Boolean success = EFArrayAppendValue(componentsArrayRef, componentRef);
             EFRelease(componentRef);
             if(!success)
             {
@@ -743,20 +743,20 @@ EFArrayRef EFStringComponentsSplitBySeparator(EFStringRef stringRef,
                 return NULL;
             }
 
-            lastLengthMatch = i + separatorString->len;
-            i += separatorString->len - 1;
+            lastLengthMatch = i + separatorString->length;
+            i += separatorString->length - 1;
         }
     }
 
-    /* creating ref for remaining lenght */
-    EFIndex len = string->len - lastLengthMatch;
-    if(len <= 0)
+    /* creating ref for remaining length */
+    EFIndex length = string->length - lastLengthMatch;
+    if(length <= 0)
     {
         return componentsArrayRef;
     }
 
-    EFStringRef componentRef = EFStringCreateWithCBuffer(allocatorRef, (const uint8_t *)&string->buf[lastLengthMatch], len, string->encoding);
-    bool success = EFArrayAppendValue(componentsArrayRef, componentRef);
+    EFStringRef componentRef = EFStringCreateWithCBuffer(allocatorRef, (const UInt8 *)&string->buffer[lastLengthMatch], length, string->encoding);
+    Boolean success = EFArrayAppendValue(componentsArrayRef, componentRef);
     EFRelease(componentRef);
     if(!success)
     {
@@ -781,20 +781,20 @@ Boolean EFStringTrimWhitespace(EFMutableStringRef mutableStringRef)
     }
 
     EFIndex start = 0;
-    while(start < mutableString->len && __EFIsWhitespace(mutableString->buf[start]))
+    while(start < mutableString->length && __EFIsWhitespace(mutableString->buffer[start]))
     {
         start++;
     }
 
-    if(start == mutableString->len)
+    if(start == mutableString->length)
     {
-        mutableString->buf[0] = '\0';
-        mutableString->len = 0;
+        mutableString->buffer[0] = '\0';
+        mutableString->length = 0;
         return true;
     }
 
-    EFIndex end = mutableString->len - 1;
-    while(end > start && __EFIsWhitespace(mutableString->buf[end]))
+    EFIndex end = mutableString->length - 1;
+    while(end > start && __EFIsWhitespace(mutableString->buffer[end]))
     {
         end--;
     }
@@ -803,10 +803,10 @@ Boolean EFStringTrimWhitespace(EFMutableStringRef mutableStringRef)
 
     if(start != 0)
     {
-        memmove(mutableString->buf, mutableString->buf + start, (size_t)new_len);
+        memmove(mutableString->buffer, mutableString->buffer + start, (size_t)new_len);
     }
-    mutableString->buf[new_len] = '\0';
-    mutableString->len = new_len;
+    mutableString->buffer[new_len] = '\0';
+    mutableString->length = new_len;
 
     return true;
 }
@@ -822,22 +822,22 @@ Boolean EFStringAppendString(EFMutableStringRef mutableStringRef,
     }
 
     /* append string must comply to the encoding of the mutable string */
-    if(!__EFStringValidateEncoding(mutableString->encoding, appendString->buf, appendString->len))
+    if(!__EFStringValidateEncoding(mutableString->encoding, appendString->buffer, appendString->length))
     {
         return false;
     }
 
-    EFIndex totalNewLength = mutableString->len + appendString->len + 1;
-    char *newp = realloc(mutableString->buf, totalNewLength);
+    EFIndex totalNewLength = mutableString->length + appendString->length + 1;
+    char *newp = realloc(mutableString->buffer, totalNewLength);
     if(newp == NULL)
     {
         return false;
     }
-    mutableString->buf = newp;
+    mutableString->buffer = newp;
 
-    memcpy(mutableString->buf + mutableString->len, appendString->buf, appendString->len);
-    mutableString->buf[totalNewLength - 1] = '\0';
-    mutableString->len = totalNewLength - 1;
+    memcpy(mutableString->buffer + mutableString->length, appendString->buffer, appendString->length);
+    mutableString->buffer[totalNewLength - 1] = '\0';
+    mutableString->length = totalNewLength - 1;
 
     return true;
 }

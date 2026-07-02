@@ -45,8 +45,8 @@ typedef struct __EFString {
     kEFStringEncoding encoding;
     Boolean is_mutable;
     Boolean is_inlined; /* meaning the buffer pointer points to after the string object */
-    char *buf;          /* it is neither inlined nor undeallocatable if mutable */
-    EFIndex len;
+    char *buffer;          /* it is neither inlined nor undeallocatable if mutable */
+    EFIndex length;
 } *__EFString;
 
 #define EF_STR(cStr) EF_STR_ENC(cStr, kEFStringEncodingUTF8)
@@ -56,8 +56,8 @@ typedef struct __EFString {
         .encoding = (enc), \
         .is_mutable = false, \
         .is_inlined = false, \
-        .buf = (char *)("" cStr ""), \
-        .len = (EFIndex)(sizeof("" cStr "") - 1), \
+        .buffer = (char *)("" cStr ""), \
+        .length = (EFIndex)(sizeof("" cStr "") - 1), \
         .header.is_stack_obj = true, \
     }; \
     _evk.header.typeID = EFStringGetTypeID(), \
@@ -66,8 +66,8 @@ typedef struct __EFString {
 
 EFTypeID EFStringGetTypeID(void);
 
-EFStringRef EFStringCreateWithCBuffer(EFAllocatorRef allocatorRef, const uint8_t *buf, size_t len, kEFStringEncoding encoding);
-EFStringRef EFStringCreateWithCBufferNoCopy(EFAllocatorRef allocatorRef, const uint8_t *buf, size_t len, kEFStringEncoding encoding);
+EFStringRef EFStringCreateWithCBuffer(EFAllocatorRef allocatorRef, const UInt8 *buffer, size_t length, kEFStringEncoding encoding);
+EFStringRef EFStringCreateWithCBufferNoCopy(EFAllocatorRef allocatorRef, const UInt8 *buffer, size_t length, kEFStringEncoding encoding);
 EFStringRef EFStringCreateWithCString(EFAllocatorRef allocatorRef, const char *str, kEFStringEncoding encoding);
 EFStringRef EFStringCreateWithCStringNoCopy(EFAllocatorRef allocatorRef, const char *str, kEFStringEncoding encoding);
 EFStringRef EFStringCreateWithFormatAndArguments(EFAllocatorRef allocatorRef, EFStringRef format, va_list arguments);

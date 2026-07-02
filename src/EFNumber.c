@@ -160,7 +160,7 @@ EFIndex EFNumberGetByteSize(EFNumberRef numberRef)
     switch(num->type)
     {
         case kEFNumberTypeSInt8:
-            return sizeof(uint8_t);
+            return sizeof(UInt8);
         case kEFNumberTypeSInt16:
             return sizeof(uint16_t);
         case kEFNumberTypeSInt32:
@@ -196,7 +196,7 @@ Boolean EFNumberGetValue(EFNumberRef numberRef,
     switch(num->type)
     {
         case kEFNumberTypeSInt8:
-            *(int8_t *)value = (uint8_t)__EFNumberGetSInt64Value(num);
+            *(int8_t *)value = (UInt8)__EFNumberGetSInt64Value(num);
             return true;
         case kEFNumberTypeSInt16:
             *(int16_t *)value = (uint16_t)__EFNumberGetSInt64Value(num);

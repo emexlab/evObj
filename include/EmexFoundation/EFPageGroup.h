@@ -47,7 +47,7 @@ EFIndex EFPageGroupGetLength(EFPageGroupRef groupRef);
 Boolean EFPageGroupExtend(EFPageGroupRef groupRef);
 Boolean EFPageGroupMerge(EFPageGroupRef groupRef);
 
-EFIndex EFPageGroupWrite(EFPageGroupRef groupRef, EFIndex off, const uint8_t *b, EFIndex len);
-EFIndex EFPageGroupRead(EFPageGroupRef groupRef, EFIndex off, uint8_t *b, EFIndex len);
+EFIndex EFPageGroupWrite(EFPageGroupRef groupRef, EFIndex off, const UInt8 *b, EFIndex length);
+EFIndex EFPageGroupRead(EFPageGroupRef groupRef, EFIndex off, UInt8 *b, EFIndex length);
 
 #endif /* EFPAGE_GROUP_H */

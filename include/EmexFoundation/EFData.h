@@ -33,8 +33,8 @@
 typedef EFObjectRef EFDataRef;
 typedef EFObjectRef EFMutableDataRef;
 
-EFDataRef EFDataCreateWithCBuffer(EFAllocatorRef allocatorRef, const uint8_t *bytes, size_t length);
-EFDataRef EFDataCreateWithCBufferNoCopy(EFAllocatorRef allocatorRef, const uint8_t *bytes, size_t length);
+EFDataRef EFDataCreateWithCBuffer(EFAllocatorRef allocatorRef, const UInt8 *bytes, size_t length);
+EFDataRef EFDataCreateWithCBufferNoCopy(EFAllocatorRef allocatorRef, const UInt8 *bytes, size_t length);
 EFMutableDataRef EFDataCreateMutable(EFAllocatorRef allocatorRef, size_t capacity);
 EFDataRef EFDataCreateCopy(EFAllocatorRef allocatorRef, EFDataRef dataRef);
 EFMutableDataRef EFDataCreateMutableCopy(EFAllocatorRef allocatorRef, EFDataRef dataRef);

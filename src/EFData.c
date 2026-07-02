@@ -30,10 +30,10 @@
 
 typedef struct EFData {
     EFObject header;
-    bool is_mutable;
-    bool is_inlined;    /* meaning the object has the buffer in it self */
-    uint8_t *buf;       /* it is neither inlined nor undeallocatable if mutable */
-    size_t len;
+    Boolean is_mutable;
+    Boolean is_inlined;    /* meaning the object has the buffer in it self */
+    UInt8 *buffer;       /* it is neither inlined nor undeallocatable if mutable */
+    size_t length;
 } *EFData;
 
 static void __EFDataInit(EFDataRef dataRef)
@@ -43,7 +43,7 @@ static void __EFDataInit(EFDataRef dataRef)
     /* we first automatically expect it to be at the inline */
     data->is_mutable = false;
     data->is_inlined = true;
-    data->buf = (uint8_t*)((const char*)data + sizeof(struct EFData));
+    data->buffer = (UInt8*)((const char*)data + sizeof(struct EFData));
 }
 
 static void __EFDataDeinit(EFDataRef dataRef)
@@ -51,7 +51,7 @@ static void __EFDataDeinit(EFDataRef dataRef)
     EFData data = (EFData)dataRef;
     if(data->is_mutable)
     {
-        free(data->buf);
+        free(data->buffer);
     }
 }
 
@@ -77,7 +77,7 @@ EFTypeID EFDataGetTypeID(void)
 }
 
 EFDataRef EFDataCreateWithCBuffer(EFAllocatorRef allocatorRef,
-                                  const uint8_t *bytes,
+                                  const UInt8 *bytes,
                                   size_t length)
 {
     if(bytes == NULL)
@@ -86,14 +86,14 @@ EFDataRef EFDataCreateWithCBuffer(EFAllocatorRef allocatorRef,
     }
 
     EFData data = (EFData)EFObjectAlloc(allocatorRef, EFDataGetTypeID(), sizeof(struct EFData) + length);
-    memcpy(data->buf, bytes, length);
-    data->len = length;
+    memcpy(data->buffer, bytes, length);
+    data->length = length;
 
     return (EFDataRef)data;
 }
 
 EFDataRef EFDataCreateWithCBufferNoCopy(EFAllocatorRef allocatorRef,
-                                        const uint8_t *bytes,
+                                        const UInt8 *bytes,
                                         size_t length)
 {
     if(bytes == NULL)
@@ -103,8 +103,8 @@ EFDataRef EFDataCreateWithCBufferNoCopy(EFAllocatorRef allocatorRef,
 
     EFData data = (EFData)EFObjectAlloc(allocatorRef, EFDataGetTypeID(), sizeof(struct EFData));
     data->is_inlined = false;
-    data->buf = (uint8_t*)bytes;
-    data->len = length;
+    data->buffer = (UInt8*)bytes;
+    data->length = length;
 
     return (EFDataRef)data;
 }
@@ -129,7 +129,7 @@ EFDataRef EFDataCreateCopy(EFAllocatorRef allocatorRef,
         allocatorRef = EFGetAllocator(dataRef);
     }
     
-    return EFDataCreateWithCBuffer(allocatorRef, data->buf, data->len);
+    return EFDataCreateWithCBuffer(allocatorRef, data->buffer, data->length);
 }
 
 EFMutableDataRef EFDataCreateMutableCopy(EFAllocatorRef allocatorRef, EFDataRef dataRef)
