@@ -190,12 +190,13 @@ EVTypeID EVStringGetTypeID(void)
     return EVStringClass.typeID;
 }
 
-EVStringRef EVStringCreateWithCBuffer(EVAllocatorRef allocatorRef,
-                                      const uint8_t *buf,
-                                      size_t len,
-                                      kEVStringEncoding encoding)
+static inline EVStringRef __EVStringCreate(EVAllocatorRef allocatorRef,
+                                           const uint8_t *buf,
+                                           size_t len,
+                                           kEVStringEncoding encoding,
+                                           Boolean is_inlined)
 {
-    if(buf == NULL || len == 0)
+    if(buf == NULL)
     {
         return NULL;
     }
@@ -206,18 +207,34 @@ EVStringRef EVStringCreateWithCBuffer(EVAllocatorRef allocatorRef,
         return NULL;
     }
 
-    EVString string = EVObjectAlloc(allocatorRef, EVStringGetTypeID(), sizeof(struct __EVString) + len + 1);
+    EVString string = EVObjectAlloc(allocatorRef, EVStringGetTypeID(), sizeof(struct __EVString) + (is_inlined ? len + 1 : 0));
     if(string == NULL)
     {
         return NULL;
     }
 
-    memcpy(string->buf, buf, len);
-    string->buf[len] = '\0';
+    if(is_inlined)
+    {
+        memcpy(string->buf, buf, len);
+        string->buf[len] = '\0';
+    }
+    else
+    {
+        string->is_inlined = false; /* string is not inlined lol */
+        string->buf = (char*)buf;
+    }
     string->len = len;
     string->encoding = encoding;
 
     return (EVStringRef)string;
+}
+
+EVStringRef EVStringCreateWithCBuffer(EVAllocatorRef allocatorRef,
+                                      const uint8_t *buf,
+                                      size_t len,
+                                      kEVStringEncoding encoding)
+{
+    return __EVStringCreate(allocatorRef, buf, len, encoding, true);
 }
 
 EVStringRef EVStringCreateWithCBufferNoCopy(EVAllocatorRef allocatorRef,
@@ -225,29 +242,7 @@ EVStringRef EVStringCreateWithCBufferNoCopy(EVAllocatorRef allocatorRef,
                                             size_t len,
                                             kEVStringEncoding encoding)
 {
-    if(buf == NULL || len == 0)
-    {
-        return NULL;
-    }
-
-    len = strnlen((const char*)buf, len);
-    if(!__EVStringValidateEncoding(encoding, (const char*)buf, len))
-    {
-        return NULL;
-    }
-
-    EVString string = EVObjectAlloc(allocatorRef, EVStringGetTypeID(), sizeof(struct __EVString));
-    if(string == NULL)
-    {
-        return NULL;
-    }
-
-    string->is_inlined = false; /* string is not inlined lol */
-    string->buf = (char*)buf;
-    string->len = len;
-    string->encoding = encoding;
-
-    return (EVStringRef)string;
+    return __EVStringCreate(allocatorRef, buf, len, encoding, false);
 }
 
 EVStringRef EVStringCreateWithCString(EVAllocatorRef allocatorRef,
@@ -260,7 +255,7 @@ EVStringRef EVStringCreateWithCString(EVAllocatorRef allocatorRef,
     }
 
     size_t len = strlen(str);
-    return EVStringCreateWithCBuffer(allocatorRef, (const uint8_t*)str, len, encoding);
+    return __EVStringCreate(allocatorRef, (const uint8_t*)str, len, encoding, true);
 }
 
 EVStringRef EVStringCreateWithCStringNoCopy(EVAllocatorRef allocatorRef,
@@ -273,7 +268,7 @@ EVStringRef EVStringCreateWithCStringNoCopy(EVAllocatorRef allocatorRef,
     }
 
     size_t len = strlen(str);
-    return (EVStringRef)EVStringCreateWithCBufferNoCopy(allocatorRef, (const uint8_t*)str, len, encoding);
+    return __EVStringCreate(allocatorRef, (const uint8_t*)str, len, encoding, false);
 }
 
 typedef struct {
