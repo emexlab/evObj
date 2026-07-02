@@ -89,6 +89,7 @@ typedef struct {
 typedef struct EVAllocator {
     /* properties  */
     const char *name;
+    void *info; /* a more complex allocator in the future will need this */
 
     /* handlers */
     evallocator_alloc_handler_t allocate;

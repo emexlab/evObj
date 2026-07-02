@@ -70,6 +70,8 @@ static void __EVAllocatorDefaultDeallocate(EVAllocatorRef allocatorRef,
 
 EVAllocatorRef kEVAllocatorDefault = (EVAllocatorRef)&(EVAllocator){
     .name = "EVAllocatorDefault",
+    .info = NULL,
+
     .allocate = __EVAllocatorDefaultAllocate,
     .deallocate = __EVAllocatorDefaultDeallocate,
 };
